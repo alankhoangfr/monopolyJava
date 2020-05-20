@@ -2,5 +2,6 @@
 Monopoly game in Java
 
 
-Run -> javac *.java
+In the Directory, 
+javac *.java
 then java Main
