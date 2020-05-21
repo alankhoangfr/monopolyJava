@@ -1,7 +1,9 @@
 # monopolyJava
 Monopoly game in Java
 
-
-In the Directory, 
-javac *.java
+Ruuning the Program\
+In the command line of the directory\
+Run javac *.java\
 then java Main
+
+
