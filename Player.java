@@ -121,6 +121,7 @@ public class Player{
         return buildingFamily;
     }
 
+
     LinkedHashMap info = new LinkedHashMap();
     public LinkedHashMap getInfo (int cashNow){
         info.put("Name",name);
@@ -133,6 +134,42 @@ public class Player{
         info.put("Hotels",hotels);
         return info;
     }
+    public void printGetInfo (){
+        Initalise init = new Initalise ();
+        int playerView= playerId+1;
+        System.out.println("");
+        System.out.println("----------------------------------------------------------");
+        System.out.println("id: "+playerView+ ", Name: "+name+ ", Cash: "+cash+ ", Get Out of Jail Free Card: "
+            +jailFreeCard);
+        System.out.println("Mortgage Property");
+        for(int deed:mortgage){
+            int family = getFamilyList(deed);
+            String familyName = init.familyNames(family);
+            System.out.println("Property: "+deed+", Propery Colour: "+familyName);
+        }
+        System.out.println("Mortgage Free");
+        for(int deed:mortgagePossible){
+            int family = getFamilyList(deed);
+            String familyName = init.familyNames(family);
+            System.out.println("Property: "+deed+", Propery Colour: "+familyName);
+        }
+        System.out.println("Hotels");
+        for(int deed:hotels){
+            int family = getFamilyList(deed);
+            String familyName = init.familyNames(family);
+            System.out.println("Property: "+deed+", Propery Colour: "+familyName);
+        }
+        System.out.println("Houses");
+        for(Entry<Integer, Integer> entry: houses.entrySet()){
+            int deed = (Integer) entry.getKey();
+            int num =(Integer) entry.getValue();
+            int family = getFamilyList(deed);
+            String familyName = init.familyNames(family);
+            System.out.println("Property: "+deed+", Propery Colour: "+familyName+", Number of Houses: "+ num);
+        }
+        System.out.println("----------------------------------------------------------");
+        System.out.println("");
+    }
     public LinkedHashMap getTradeInfo (){
         info.put("id",playerId+1);
         info.put("Name",name);
@@ -143,17 +180,22 @@ public class Player{
         return info;
     }
     public void printTradeInfo (){
+        Initalise init = new Initalise ();
         int playerView= playerId+1;
+        System.out.println("");
         System.out.println("id: "+playerView+ ", Name: "+name+ ", Cash: "+cash+ ", Get Out of Jail Free Card: "
             +jailFreeCard);
         for(int deed:mortgage){
             int family = getFamilyList(deed);
-            System.out.println("Property: "+deed+", Propery Colour: "+family);
+            String familyName = init.familyNames(family);
+            System.out.println("Property: "+deed+", Propery Colour: "+familyName);
         }
         for(int deed:mortgagePossible){
             int family = getFamilyList(deed);
-            System.out.println("Property: "+deed+", Propery Colour: "+family);
+            String familyName = init.familyNames(family);
+            System.out.println("Property: "+deed+", Propery Colour: "+familyName);
         }
+        System.out.println("");
     }
     public int getFamilyList(int propertyPosition){
         LinkedHashMap<Integer, ArrayList<Integer>> familyList=buildingFamilyList();
@@ -723,9 +765,10 @@ public class Player{
             int buildValue = (Integer) info.get("buildCost");
             int sellValue = (int) Math.round(buildValue/2);
             int totalSellValue = sellValue*5;
-            mortgagePossible.add(propertyPosition);
+
             totalHotelValue+=totalSellValue;
             if(simulate==0){
+                mortgagePossible.add(propertyPosition);
                 updateCash(totalSellValue);
             }
         }
@@ -748,11 +791,12 @@ public class Player{
             int buildValue = (Integer) info.get("buildCost");
             int sellValue = (int) Math.round(buildValue/2);
             int totalSellValue = sellValue*comb.getValue();
-            if(comb.getValue()>0){
-               mortgagePossible.add(propertyPosition);
-            }
+
             totalHouseValue+=totalSellValue;
             if(simulate==0){
+                if(comb.getValue()>0){
+                   mortgagePossible.add(propertyPosition);
+                }
                 updateCash(totalSellValue);
             }
         }

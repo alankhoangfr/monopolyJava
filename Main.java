@@ -7,9 +7,14 @@ public class Main{
         //Parameters
         Initalise init = new Initalise ();
         init.allSetup();
+        System.out.println("");
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
         System.out.println("Welcome to Monopoly!");
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        System.out.println("");
         System.out.println("How many players do you want in the game? Type the number. It must be between 2 and 6"
             +" or type -1 to Quit");
+        System.out.println("");
         ArrayList<Integer> possibleChoice = init.makeAList(2,6);
         possibleChoice.add(-1);
         int numberPlayers= init.userType(possibleChoice,0);
@@ -38,7 +43,11 @@ public class Main{
             }
             int numberRounds = 100;
             //Looping the rounds
+            System.out.println("");
+            System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
             System.out.println("Let the Games Begin!!");
+            System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+            System.out.println("");
             GamePlay g = new GamePlay(numberPlayers,numberRounds,playerList,init);
             g.loop();
         }

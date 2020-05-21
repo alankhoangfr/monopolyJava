@@ -33,13 +33,101 @@ public class Initalise{
         return communityDeck;
     }
 
-    public void printInfoProperty(){
-        for(Entry<Integer, LinkedHashMap>entry:infoProperty.entrySet()){
-            LinkedHashMap temp = entry.getValue();
-            int family= (int) temp.get("family");
-            System.out.println(entry.getValue());
-
+    public String familyNames(int family){
+        String familyName;
+        switch(family){
+            case 1:
+                familyName= "Dark Purple";
+                break;
+            case 2:
+                familyName= "Light Blue";
+                break;
+            case 3:
+                familyName= "Pink";
+                break;
+            case 4:
+                familyName= "Orange";
+                break;
+            case 5:
+                familyName= "Red";
+                break;
+            case 6:
+                familyName= "Yellow";
+                break;
+            case 7:
+                familyName= "Green";
+                break;
+            case 8:
+                familyName= "Blue";
+                break;
+            case 9:
+                familyName= "Stations";
+                break;
+            case 10:
+                familyName= "Utility";
+                break;
+            default:
+                familyName= "error";
         }
+        return familyName;
+    }
+
+
+    public void printInfoProperty(LinkedHashMap information,ArrayList<Object> playerList){
+        System.out.println("");
+        System.out.println("----------------------------------------------------------------");
+        int family = (Integer) information.get("family");
+        String familyName = familyNames(family);
+        System.out.println("Position: "+information.get("position")+", Title: "+information.get("name")
+            +", Property Group: "+familyName);
+        int ownerId = (Integer) information.get("owner");
+        String ownership = "Not Owned";
+        if(ownerId!=-1){
+            Player player = (Player) playerList.get(ownerId);
+            ownership=(String) player.getName();
+        }
+        String status;
+        switch((Integer) information.get("status")){
+            case 0:
+                status="Not Owned";
+                break;
+            case 1:
+                status="Ownership";
+                break;
+            case 2:
+                status = "Mortgaged";
+                break;
+            default:
+                status = "Error";
+                break;
+        }
+
+        if(family>=1&&family<=8){
+            System.out.println("Owner Id: "+ownership+", Status: "+status+ ", Current Rent Price: $"
+                +information.get("rentPrice"));
+            System.out.println("");
+            System.out.println("Empty Land: $"+information.get("landRent")+", Rent with Colour set: $"+ information.get("monopoly"));
+            System.out.println("One House: $"+information.get("oneHouse")+ ", Two Houses: $"+ information.get("twoHouse"));
+            System.out.println("Three House: $"+information.get("threeHouse")+ ", Four Houses: $"+ information.get("fourHouse"));
+            System.out.println("Hotel: $"+information.get("hotel"));
+        }else if(family==9){
+            System.out.println("Owner Id: "+ownership+", Status: "+status+ ", Current Rent Price: $"
+                +information.get("rentPrice"));
+            System.out.println("");
+            System.out.println("One Railways: $"+information.get("oneHouse")+ ", Two Railways: $"+ information.get("twoHouse"));
+            System.out.println("Three Railways: $"+information.get("threeHouse")+ ", Four Railways: $"+ information.get("fourHouse"));
+        }else{
+            System.out.println("Owner Id: "+ownership+", Status: "+status+ ", Current Rent Price: Variable");
+            System.out.println("");
+            System.out.println("One Utlity: 4xDice Roll, Two Utlity: 10xDice Roll");
+        }
+        System.out.println("");
+        System.out.println("Price: $" + information.get("price"));
+        System.out.println("Building Cost: $" + information.get("buildCost"));
+        System.out.println("Mortgage Value: $" + information.get("mortgage"));
+        System.out.println("----------------------------------------------------------------");
+        System.out.println("");
+
     }
 
     public LinkedHashMap infoPosition (int positionNumber){
@@ -112,7 +200,7 @@ public class Initalise{
         ArrayList<Integer> array =  (ArrayList<Integer>) possibleChoices.clone();
         Scanner sc = new Scanner(System.in);
         if(array.size()<40){
-            System.out.println(array);
+            //System.out.println(array);
         }
         int option = -99;
         do {
@@ -189,6 +277,7 @@ public class Initalise{
             LinkedHashMap<Integer,Integer> count = new LinkedHashMap<Integer,Integer>();
             for(int d: entry.getValue()){
                 LinkedHashMap info = (LinkedHashMap) infoProperty.get(d);
+                //System.out.println(info);
                 int owner = (Integer) info.get("owner");
                 if(ownerGroup.containsKey(owner)){
                     ArrayList <Integer> temp = ownerGroup.get(owner);
