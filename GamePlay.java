@@ -3,10 +3,10 @@ import java.util.*;
 import java.lang.*;
 
 public class GamePlay{
-    int numberPlayers;
-    int numberRounds;
-    ArrayList <Object> playerList;
-    Object initial;
+    private int numberPlayers;
+    private int numberRounds;
+    private ArrayList <Object> playerList;
+    private Object initial;
 
     GamePlay(int numberPlayers,int numberRounds,ArrayList <Object> playerList, Object initial){
         this.numberPlayers=numberPlayers;
@@ -19,8 +19,8 @@ public class GamePlay{
         //System.out.println(init.getInfoCommunity());
         //System.out.println(init.getInfoChance());
         //System.out.println(init.getInfoOthers());
-        //System.out.println(init.getChanceDeck()+": chance deck");
-        //System.out.println(init.getCommunityDeck()+": community deck");
+        System.out.println(init.getChanceDeck()+": chance deck");
+        System.out.println(init.getCommunityDeck()+": community deck");
         int i =1;
         while(true){
             System.out.println("------------------------------------------------------------------------------------------------------------------------");
@@ -40,17 +40,17 @@ public class GamePlay{
                         }
                         System.out.println("");
                         Dice roll = (Dice) rollDecision(playerList,player.getPlayerId(),init);
-                        //System.out.println(init.chanceDeck+": chance deck");
-                        //System.out.println(init.communityDeck+": community deck");
-                        if(player.jail==false){
+                        System.out.println(init.getChanceDeck()+": chance deck");
+                        System.out.println(init.getCommunityDeck()+": community deck");
+                        if(player.getJail()==false){
                             int newPossiblePosition = player.rollPlusPosition(roll.getTotal());
                             //Information regarding that position
                             LinkedHashMap information = init.infoPosition(newPossiblePosition);
                             //Move to that position
                             player.setPosition(player.newPosition(roll.getTotal(),roll.getDoub()));
                             System.out.println("player: "+player.getName()
-                                +",cash:"+player.getCash()+" ,position: "+player.getPosition()+",jail: "+player.jail
-                                +",repeatRoll:"+player.repeatRoll);
+                                +",cash:"+player.getCash()+" ,position: "+player.getPosition()+",jail: "+player.getJail()
+                                +",repeatRoll:"+player.getRepeatRoll());
                             if(information.get("cardName")!=null){
                                 System.out.println("position: "+player.getPosition()+", card: "+information.get("name")
                                     + ": "+information.get("cardName"));
@@ -66,14 +66,18 @@ public class GamePlay{
                             player.setPosition(player.newPosition(roll.getTotal(),roll.getDoub()));
                         }
                         playerAction(playerList,player.getPlayerId(),0,-1,player.getCash(),init);
-                        if(player.repeatRoll==false){
+                        if(player.getRepeatRoll()==false){
+                            repeat=false;
+                            break;
+                        }
+                        if(player.getStatus()==0){
                             repeat=false;
                             break;
                         }
                     }
-                    if(player.jail==false){
+                    if(player.getJail()==false){
                         player.restartDice();
-                    }else if(player.jail==true && player.getDiceHistory().size()==3){
+                    }else if(player.getJail()==true && player.getDiceHistory().size()==3){
                         player.restartDice();
                     }
                 }
@@ -116,11 +120,11 @@ public class GamePlay{
         Random rand = new Random();
         Player player = (Player) playerList.get(playerId);
         Dice roll = new Dice();
-        if (player.jail==true){
+        if (player.getJail()==true){
             Boolean decision = false;
             while (decision==false){
                 int choice;
-                if(player.jailFreeCard>0){
+                if(player.getJailFreeCard()>0){
                     System.out.println(player.getName()+" is in Jail!! Type 1 to Roll for Double. Type 2 to pay $50 bond. "
                         +"Type 3 to use the Get out of jail free card");
                     ArrayList<Integer> possibleChoice = init.makeAList(1,3);
@@ -138,7 +142,7 @@ public class GamePlay{
                 switch (choice){
                     case 1:
                         System.out.println(player.getName()+" has chosen to Roll for Double");
-                        System.out.println("dice: total: "+roll.getTotal()+", dice 1: "+roll.a+", dice 2: "+roll.b+", double: "+roll.getDoub());
+                        System.out.println("dice: total: "+roll.getTotal()+", dice 1: "+roll.getA()+", dice 2: "+roll.getB()+", double: "+roll.getDoub());
                         if(roll.getDoub()==true){
                             System.out.println("Congrulations you have rolled a double. You are now free!");
                             System.out.println(player.getName()+ " is out of jail!");
@@ -180,25 +184,25 @@ public class GamePlay{
                             System.out.println(player.getName()+" has $"+(player.getCash()));
                             System.out.println(player.getName() + " is out of jail!");
                             System.out.println("");
-                            System.out.println("dice: total: "+roll.getTotal()+", dice 1: "+roll.a+", dice 2: "+roll.b+", double: "
+                            System.out.println("dice: total: "+roll.getTotal()+", dice 1: "+roll.getA()+", dice 2: "+roll.getB()+", double: "
                                 +roll.getDoub());
                             decision=true;
                        }
                        break;
                     case 3:
                         System.out.println(player.getName()+" has used your Get of Jail free Card");
-                        System.out.println(player.getName()+" now has "+player.jailFreeCard+" Get of Jail Free Card");
+                        System.out.println(player.getName()+" now has "+player.getJailFreeCard()+" Get of Jail Free Card");
                         String card= player.getTypeCard().get(0);
                         if(card=="Chance"){
-                            init.chanceDeck.add(0,8);
+                            init.addChanceDeck(8);
                         }else{
-                            init.communityDeck.add(0,8);
+                            init.addCommunityDeck(8);
                         }
                         player.useCard();
                         System.out.println("Your Get out of Jail free card has been put back to the botom of the "+card+" deck.");
                         System.out.println(player.getName()+ " is out of jail!");
                         System.out.println("");
-                        System.out.println("dice: total: "+roll.getTotal()+", dice 1: "+roll.a+", dice 2: "+roll.b+", double: "+roll.getDoub());
+                        System.out.println("dice: total: "+roll.getTotal()+", dice 1: "+roll.getA()+", dice 2: "+roll.getB()+", double: "+roll.getDoub());
                         decision = true;
                         break;
                     default:
@@ -207,7 +211,7 @@ public class GamePlay{
                 }
             }
         }else{
-            System.out.println("dice: total: "+roll.getTotal()+", dice 1: "+roll.a+", dice 2: "+roll.b+", double: "+roll.getDoub());
+            System.out.println("dice: total: "+roll.getTotal()+", dice 1: "+roll.getA()+", dice 2: "+roll.getB()+", double: "+roll.getDoub());
         }
         return roll;
     }
@@ -251,8 +255,20 @@ public class GamePlay{
                     +" has enough cash to pay its creditors, then the mortgaged assets and other assets will be auctioned");
                 System.out.println("If it is not enough to pay creditors, then all the mortgage assests and oher assests"
                     +" will be transfered to the creditor");
+                System.out.println("");
+                System.out.println("Running simiulation!!");
+                int total = player.liquidateAll(init,1);
+                System.out.println("");
+                if(total>=minCash){
+                    System.out.println("Since the total avaliable funds is greater than the current payment."
+                        +   " Bankruptcy may not be the best option!");
+                }else{
+                    System.out.println("The total avaliable funds is NOT greater than the current payment."
+                        +   " Try trading or declare Bankruptcy!!");
+                }
+                System.out.println("");
                 System.out.println(player.getName()+". Are you sure want to start the process. Type 1 to start or type 2 to find"
-                    +   " other options.");
+                    +   " other options or type 3 to see how much you can raise");
                 int userChoice1=init.userType(possibleChoice1,0);
                 if(userChoice1==2){
                     playerAction( playerList,playerId,minCash,winner,player.getCash(), init);
@@ -262,13 +278,8 @@ public class GamePlay{
             }else{
                 userAction(playerList,playerId,winner,init,userChoice);
             }
-            System.out.println(player.getTradeInfo() + ", "+ minCash);
-            System.out.println("Fixing");
             if(player.getCash()<=minCash&&player.getStatus()==1){
                 playerAction( playerList,playerId,minCash,winner,player.getCash(), init);
-            }else{
-                System.out.println("enough money");
-
             }
 
        }
@@ -512,7 +523,8 @@ public class GamePlay{
             //Player
             tradeList1.put("id",player.getPlayerId());
             tradeList1.put("Cash",0);
-            tradeList1.put("jailFreeCard",0);
+            ArrayList<String> typeCard1 = new ArrayList<String>();
+            tradeList1.put("jailFreeCard",typeCard1);
             tradeList1.put("Deeds",emptyList);
             tradeList1.put("Mortgage",emptyList);
 
@@ -561,16 +573,21 @@ public class GamePlay{
                 }
                 tradeList1.put("Mortgage",mortgageList);
             }if(player.getJailFreeCard()>0){
+                ArrayList<String> tempTypeCard = (ArrayList<String>) player.getTypeCard();
                 System.out.println("");
-                System.out.println(player.getName()+". Type the number of Get out of Jail Card "
-                    +" you wish to trade");
+                System.out.println(player.getName()+". Type the number of Get out of Jail Card you wish to receive from "
+                    +player.getName() );
                 int numberJailFreeCard = (int) player.getJailFreeCard();
                 ArrayList<Integer> possibleChoice2 = init.makeAList(0,numberJailFreeCard);
-                int userChoice2 = init.userType(possibleChoice2,0);
-                tradeList1.put("jailFreeCard",userChoice2);
+                int userChoice1 = init.userType(possibleChoice2,0);
+                for(int i=0; i<userChoice1;i++){
+                    String card = tempTypeCard.get(i);
+                    typeCard1.add(card);
+                }
+                tradeList1.put("jailFreeCard",typeCard1);
             }if(player.getCash()>0){
                 System.out.println(player.getName()+". Type the amount of cash you wish to exchange. "
-                    +player.getName()+" has available cash $"+player.getCash());
+                    +". "+player.getName()+" has available cash $"+player.getCash());
                 ArrayList<Integer> possibleChoice3 = init.makeAList(0,player.getCash());
                 int userChoice3 = init.userType(possibleChoice3,0);
                 tradeList1.put("Cash",userChoice3);
@@ -579,7 +596,8 @@ public class GamePlay{
             //Trader
             tradeList2.put("id",tradePlayer.getPlayerId());
             tradeList2.put("Cash",0);
-            tradeList2.put("jailFreeCard",0);
+            ArrayList<String> typeCard2 = new ArrayList<String>();
+            tradeList2.put("jailFreeCard",typeCard2);
             tradeList2.put("Deeds",emptyList);
             tradeList2.put("Mortgage",emptyList);
 
@@ -629,17 +647,23 @@ public class GamePlay{
                     }
                 }
                 tradeList2.put("Mortgage",mortgageList);
-            }if(tradePlayer.getJailFreeCard()>0){
+            }
+            if(tradePlayer.getTypeCard().size()>0){
+                ArrayList<String> tempTypeCard = (ArrayList<String>) tradePlayer.getTypeCard();
                 System.out.println("");
                 System.out.println(player.getName()+". Type the number of Get out of Jail Card you wish to receive from "
                     +tradePlayer.getName() );
                 int numberJailFreeCard = (int) tradePlayer.getJailFreeCard();
                 ArrayList<Integer> possibleChoice2 = init.makeAList(0,numberJailFreeCard);
                 int userChoice2 = init.userType(possibleChoice2,0);
-                tradeList2.put("jailFreeCard",userChoice2);
+                for(int i=0; i<userChoice2;i++){
+                    String card = tempTypeCard.get(i);
+                    typeCard2.add(card);
+                }
+                tradeList2.put("jailFreeCard",typeCard2);
             }if(tradePlayer.getCash()>0){
                 System.out.println(player.getName()+". Type the cash amount you wish to receive from "+tradePlayer.getName()
-                    +tradePlayer.getName() +" has avaliable cash: $"+tradePlayer.getCash());
+                    +". "+tradePlayer.getName() +" has avaliable cash: $"+tradePlayer.getCash());
                 ArrayList<Integer> possibleChoice3 = init.makeAList(0,tradePlayer.getCash());
                 int userChoice3 = init.userType(possibleChoice3,0);
                 tradeList2.put("Cash",userChoice3);
@@ -658,15 +682,15 @@ public class GamePlay{
                         +" or type 0 for No ");
                 int trade2Choice = init.userType(tradeOptions,0);
                 if(trade2Choice==1){
-                    System.out.println("Trade between "+player.name + " and "+tradePlayer.name
+                    System.out.println("Trade between "+player.getName()+ " and "+tradePlayer.getName()
                         +" has been successful!");
                     tradeTransaction(playerList,init,tradeList1,tradeList2);
                 }else{
-                   System.out.println("Trade has been declined by "+tradePlayer.name);
+                   System.out.println("Trade has been declined by "+tradePlayer.getName());
                    playerAction( playerList,   playerId,  0,-1,player.getCash(), init);
                 }
             }else{
-                System.out.println("Trade has been declined by "+player.name);
+                System.out.println("Trade has been declined by "+player.getName());
                 playerAction( playerList,   playerId,  0,-1,player.getCash(), init);
             }
 
@@ -775,18 +799,18 @@ public class GamePlay{
         //Get of jail card
         ArrayList<String> cards= vict.getTypeCard();
         for(String card: cards){
-            if(card=="Chance"){
-                System.out.println("Put back Get of jail card into Chance Deck");
-                init.chanceDeck.add(0,8);
-            }else{
-                init.communityDeck.add(0,8);
+            if(card=="Community"){
                 System.out.println("Put back Get of jail card into Community Deck");
+                init.addCommunityDeck(8);
+            }else{
+                init.addChanceDeck(8);
+                System.out.println("Put back Get of jail card into ChanceDeck");
             }
         }
         vict.setJailFreeCard(0);
-        init.getInfoChance();
-        init.getInfoCommunity();
-        int victCash = vict.liquidateAll(init);
+        init.getChanceDeck();
+        init.getCommunityDeck();
+        int victCash = vict.liquidateAll(init,0);
         //Enough to pay creditor
         if(victCash>=minCash){
             System.out.println("Liqudated all assets. Able to raise $"+victCash);
@@ -859,11 +883,12 @@ public class GamePlay{
                 vict.setStatus(0);
                 auctionAll(playerList,victim,initial);
             }
-            System.out.println("creditor gets all winner: "+winner);
-            System.out.println("victCash : "+victCash+", victCash: "+victCash+", minCash: "+minCash);
         }
-
+        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
         System.out.println(vict.getName()+" has left the game.");
+        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+        System.out.println("");
+
     }
     public static int validPlayers(ArrayList<Object> playerList){
         int count=0;
@@ -1108,13 +1133,15 @@ public class GamePlay{
                 temp1.updateCash(payment);
                 //The rent is normal and not doubled. So it has the same conditins as type 4
                 if (type==4||type==0){
-                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp1.name+" at rent $"+payment);
+                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp1.getName()
+                        +" at rent $"+payment);
                 }else if(type==5){
-                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp1.name
+                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp1.getName()
                         +" at rent double rent of $"+payment/2+ " which is $"+payment);
                 }
                 System.out.println(player.getName()+"'s cash is $"+player.getCash());
-                System.out.println(temp1.name+" receives $"+payment +" from "+player.getName()+". "+temp1.name+" now has $"+temp1.cash);
+                System.out.println(temp1.getName()+" receives $"+payment +" from "+player.getName()+". "+temp1.getName()
+                    +" now has $"+temp1.getCash());
             }
         }else if(status ==2){
             System.out.println("Renting house which is mortgage - name:"+postInfo.get("name")+", owner: "
@@ -1143,7 +1170,7 @@ public class GamePlay{
     }
     public static void type7(ArrayList<Object> playerList,  int playerId){
         Player player = (Player) playerList.get(playerId);
-        System.out.println(player.getName()+" has " +player.jailFreeCard+" get out of jail free cards");
+        System.out.println(player.getName()+" has " +player.getJailFreeCard()+" get out of jail free cards");
     }
     public static void type8(ArrayList<Object> playerList,  int playerId,Object initial,int rollTotal,LinkedHashMap information){
         Player player = (Player) playerList.get(playerId);
@@ -1218,7 +1245,7 @@ public class GamePlay{
                 Player temp3 = (Player) playerList.get(owner);
                 int rentPrice;
                 if(family==10){
-                    int numUtlity = Collections.frequency(temp3.houseFamily, 10);
+                    int numUtlity = Collections.frequency(temp3.getHouseFamily(), 10);
                     switch(numUtlity){
                         case 1:
                             rentPrice = 4*rollTotal;
@@ -1241,11 +1268,11 @@ public class GamePlay{
                 if(player.getStatus()==1&&player.getCash()>=rentPrice){
                     LinkedHashMap postInfo = (LinkedHashMap)  player.buyRentAuction(information,rentPrice,1);
                     temp3.updateCash(rentPrice*1);
-                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp3.name
+                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp3.getName()
                         +" at rent $"+rentPrice);
                     System.out.println(player.getName()+"'s cash is $"+player.getCash());
-                    System.out.println(temp3.name+" receives $"+rentPrice +" from "+player.getName()+". "+temp3.name
-                        +" now has $"+temp3.cash);
+                    System.out.println(temp3.getName()+" receives $"+rentPrice +" from "+player.getName()+". "+temp3.getName()
+                        +" now has $"+temp3.getCash());
                 }
 
             }else{

@@ -4,29 +4,28 @@ import java.util.Map.*;
 
 public class Player{
 
-    int status=1;
-    String name;
-    int playerId;
-    int position =0;
-    int cash = 5000;
-    ArrayList<Integer> mortgage = new ArrayList<>();
-    ArrayList<Integer> mortgagePossible = new ArrayList<>();
-    LinkedHashMap<Integer,Integer> houses = new LinkedHashMap<Integer,Integer>();
-    ArrayList<Integer> hotels = new ArrayList<>();
-    ArrayList<Integer> monopoly = new ArrayList<>();
-    ArrayList<Integer> houseFamily = new ArrayList<>();
-    int jailFreeCard = 0;
-    ArrayList<String> typeCard = new ArrayList<>();
-    ArrayList<Boolean> dice = new ArrayList<>();
-    boolean jail = false;
-    boolean pay = false;
-    boolean repeatRoll = false;
+    private int status=1;
+    private String name;
+    private int playerId;
+    private int position =0;
+    private int cash = 5000;
+    private ArrayList<Integer> mortgage = new ArrayList<>();
+    private ArrayList<Integer> mortgagePossible = new ArrayList<>();
+    private LinkedHashMap<Integer,Integer> houses = new LinkedHashMap<Integer,Integer>();
+    private ArrayList<Integer> hotels = new ArrayList<>();
+    private ArrayList<Integer> monopoly = new ArrayList<>();
+    private ArrayList<Integer> houseFamily = new ArrayList<>();
+    private int jailFreeCard = 0;
+    private ArrayList<String> typeCard = new ArrayList<>();
+    private ArrayList<Boolean> dice = new ArrayList<>();
+    private boolean jail = false;
+    private boolean pay = false;
+    private boolean repeatRoll = false;
 
     //Constructors
     Player(String name,int playerId){
         this.name=name;
         this.playerId=playerId;
-
     }
 
     //Setters
@@ -40,6 +39,7 @@ public class Player{
     public void setJailFreeCard(int jailFreeCard){
         this.jailFreeCard=jailFreeCard;
     }
+
     //Getter
     public int getStatus(){
         return status;
@@ -142,7 +142,6 @@ public class Player{
         info.put("Get Out of Jail Free Card",jailFreeCard);
         return info;
     }
-
     public void printTradeInfo (){
         int playerView= playerId+1;
         System.out.println("id: "+playerView+ ", Name: "+name+ ", Cash: "+cash+ ", Get Out of Jail Free Card: "
@@ -166,16 +165,14 @@ public class Player{
         return -1;
     }
 
+    //Game Play - Movement
     public void restartDice (){
         dice.clear();
     }
-
     public void adjust(int money, int change){
         cash+=money;
         position=rollPlusPosition(change);
     }
-
-
     public List<Boolean> updateDice (boolean doub){
         int histDice = dice.size();
         if(histDice<4){
@@ -186,7 +183,6 @@ public class Player{
         }
         return dice;
     }
-
     public int rollPlusPosition (int num){
         int newTotal = num + position;
         if (newTotal>=40){
@@ -194,7 +190,6 @@ public class Player{
         }
         return newTotal;
     }
-
     public int newPosition (int num,boolean doub){
         int newTotal = rollPlusPosition(num);
         if(jail==true){
@@ -262,6 +257,8 @@ public class Player{
 
         }
     }
+
+    //Game Play impact to player
     //Subtract or add amount to plyaer
     public void updateCash (int amount){
         cash+=amount;
@@ -437,10 +434,20 @@ public class Player{
         ArrayList<Integer> inflowDeeds = (ArrayList<Integer>) tradeList2.get("Deeds");
         int outflowCash = (Integer) tradeList1.get("Cash");
         int inflowCash = (Integer) tradeList2.get("Cash");
-        int outflowJail = (Integer) tradeList1.get("jailFreeCard");
-        int inflowJail = (Integer) tradeList2.get("jailFreeCard");
+        ArrayList<String> outflowJail = (ArrayList<String>) tradeList1.get("jailFreeCard");
+        ArrayList<String> inflowJail = (ArrayList<String>) tradeList2.get("jailFreeCard");
+        if (outflowJail.size()>0){
+            for(int i=0;i<outflowJail.size();i++){
+                typeCard.remove(0);
+            }
+        }
+        if(inflowJail.size()>0){
+            for(int i=0;i<inflowJail.size();i++){
+                typeCard.add(inflowJail.get(i));
+            }
+        }
         updateCash(inflowCash-outflowCash);
-        jailFreeCard= jailFreeCard-outflowJail+inflowJail;
+        jailFreeCard= jailFreeCard-outflowJail.size()+inflowJail.size();
         for(int deed: outflowDeeds){
             int family = getFamilyList(deed);
             mortgagePossible.remove(new Integer(deed));
@@ -689,11 +696,53 @@ public class Player{
 
         }
     }
-    public int liquidateAll(Object initial){
+    public int liquidateAll(Object initial,int simulate){
         Initalise init = (Initalise) initial;
         System.out.println("starting Cash: "+cash);
+        ArrayList<Integer>hotels1;
+        LinkedHashMap<Integer,Integer>houses1;
+        ArrayList<Integer>mortgagePossible1;
+        if(simulate==1){
+            hotels1=(ArrayList<Integer>) hotels.clone();
+            houses1=(LinkedHashMap<Integer,Integer>)houses.clone();
+            mortgagePossible1=(ArrayList<Integer>) mortgagePossible.clone();
+        }else{
+            hotels1=(ArrayList<Integer>) hotels;
+            houses1=(LinkedHashMap<Integer,Integer>)houses;
+            mortgagePossible1=(ArrayList<Integer>) mortgagePossible;
+        }
+        //liqudate hotels
+        if(hotels1.size()==1){
+            System.out.println("Liquadating All Hotels - "+name+" has "+hotels.size()+" hotel");
+        }else{
+            System.out.println("Liquadating All Hotels - "+name+" has "+hotels.size()+" hotels");
+        }
+        int totalHotelValue= 0;
+        for(int propertyPosition: hotels1){
+            LinkedHashMap info = (LinkedHashMap) init.infoPosition(propertyPosition);
+            int buildValue = (Integer) info.get("buildCost");
+            int sellValue = (int) Math.round(buildValue/2);
+            int totalSellValue = sellValue*5;
+            mortgagePossible.add(propertyPosition);
+            totalHotelValue+=totalSellValue;
+            if(simulate==0){
+                updateCash(totalSellValue);
+            }
+        }
+        hotels1.clear();
+        System.out.println("Able to raise $"+totalHotelValue);
+        if(simulate==0){
+            System.out.println("Current Cash: $"+cash);
+        }
+
         //liqudate houses
-        for (Entry<Integer, Integer> comb : houses.entrySet()){
+        if(numberHouses()==1){
+            System.out.println("Liquadating All hosues - "+name+" has "+numberHouses()+" houses");
+        }else{
+            System.out.println("Liquadating All hosues - "+name+" has "+numberHouses()+" houses");
+        }
+        int totalHouseValue= 0;
+        for (Entry<Integer, Integer> comb : houses1.entrySet()){
             int propertyPosition =  comb.getKey();
             LinkedHashMap info = (LinkedHashMap) init.infoPosition(propertyPosition);
             int buildValue = (Integer) info.get("buildCost");
@@ -702,29 +751,45 @@ public class Player{
             if(comb.getValue()>0){
                mortgagePossible.add(propertyPosition);
             }
-            updateCash(totalSellValue);
+            totalHouseValue+=totalSellValue;
+            if(simulate==0){
+                updateCash(totalSellValue);
+            }
         }
-        houses.clear();
-        //liqudate hotels
-        for(int propertyPosition: hotels){
-            LinkedHashMap info = (LinkedHashMap) init.infoPosition(propertyPosition);
-            int buildValue = (Integer) info.get("buildCost");
-            int sellValue = (int) Math.round(buildValue/2);
-            int totalSellValue = sellValue*5;
-            mortgagePossible.add(propertyPosition);
-            updateCash(totalSellValue);
+        houses1.clear();
+        System.out.println("Able to raise $"+totalHouseValue);
+        if(simulate==0){
+            System.out.println("Current Cash: $"+cash);
+        }
 
-        }
-        hotels.clear();
+
         //Mortgage all deeds
-        for (int propertyPosition: mortgagePossible){
+
+        if(mortgagePossible1.size()==1){
+            System.out.println("Mortgaging all properties - "+name+" has "+mortgagePossible1.size()+" properties");
+        }else{
+            System.out.println("Mortgaging all properties - "+name+" has "+mortgagePossible1.size()+" properties");
+        }
+        int totalMortgageValue= 0;
+        for (int propertyPosition: mortgagePossible1){
             LinkedHashMap info = (LinkedHashMap) init.infoPosition(propertyPosition);
             int mortgageValue = (Integer) info.get("mortgage");
-            updateCash(mortgageValue);
-            mortgage.add(propertyPosition);
+            totalMortgageValue+=mortgageValue;
+            if(simulate==0){
+                updateCash(mortgageValue);
+                mortgage.add(propertyPosition);
+            }
         }
-        mortgagePossible.clear();
-        return cash;
+        mortgagePossible1.clear();
+        System.out.println("Able to raise $"+totalMortgageValue);
+        if(simulate==0){
+            System.out.println("Current Cash: $"+cash);
+            return cash;
+        }else{
+            int simulateCash = cash+totalMortgageValue+totalHouseValue+totalHotelValue;
+            System.out.println("Possible Cash: $"+simulateCash);
+            return simulateCash;
+        }
     }
     public void clearEverything(){
         mortgage.clear();

@@ -3,15 +3,15 @@ import java.util.Collections;
 import java.util.Map.*;
 
 public class Initalise{
-    ArrayList<Integer> chanceArray = new ArrayList<>();
-    ArrayList<Integer> communityArray = new ArrayList<>();
-    ArrayList<Integer> otherArray = new ArrayList<>();
-    LinkedHashMap<Integer, LinkedHashMap> infoChance = new LinkedHashMap<Integer, LinkedHashMap>();
-    LinkedHashMap<Integer, LinkedHashMap> infoCommunity = new LinkedHashMap<Integer, LinkedHashMap>();
-    LinkedHashMap<Integer, LinkedHashMap> infoOthers = new LinkedHashMap<Integer, LinkedHashMap>();
-    LinkedHashMap<Integer, LinkedHashMap> infoProperty = new LinkedHashMap<Integer, LinkedHashMap>();
-    ArrayList <Integer> chanceDeck= new ArrayList<>();
-    ArrayList <Integer> communityDeck= new ArrayList<>();
+    private ArrayList<Integer> chanceArray = new ArrayList<>();
+    private ArrayList<Integer> communityArray = new ArrayList<>();
+    private ArrayList<Integer> otherArray = new ArrayList<>();
+    private LinkedHashMap<Integer, LinkedHashMap> infoChance = new LinkedHashMap<Integer, LinkedHashMap>();
+    private LinkedHashMap<Integer, LinkedHashMap> infoCommunity = new LinkedHashMap<Integer, LinkedHashMap>();
+    private LinkedHashMap<Integer, LinkedHashMap> infoOthers = new LinkedHashMap<Integer, LinkedHashMap>();
+    private LinkedHashMap<Integer, LinkedHashMap> infoProperty = new LinkedHashMap<Integer, LinkedHashMap>();
+    private ArrayList <Integer> chanceDeck= new ArrayList<>();
+    private ArrayList <Integer> communityDeck= new ArrayList<>();
 
 //Getters
     public LinkedHashMap<Integer, LinkedHashMap> getInfoChance (){
@@ -51,7 +51,7 @@ public class Initalise{
             if(card!=8){
                 chanceDeck.add(0,card);
             }
-            return infoCommunity.get(card);
+            return infoChance.get(card);
         }else if(communityArray.contains(positionNumber)){
             int size = communityDeck.size()-1;
             int card = communityDeck.get(size);
@@ -67,6 +67,22 @@ public class Initalise{
             temp.put("type",9);
             return temp;
         }
+    }
+
+    //Card Dekcs
+    public void addCommunityDeck(int card){
+        communityDeck.add(0,card);
+    }
+    public void addChanceDeck(int card){
+        chanceDeck.add(0,card);
+    }
+    public ArrayList<Integer> shuffle(){
+        ArrayList<Integer> deck = new ArrayList<>();
+        for(int i=1;i<17;i++){
+            deck.add(i);
+        }
+        Collections.shuffle(deck);
+        return deck;
     }
 
     public void updatePropertyDetails(int position,LinkedHashMap updateInformation){
@@ -91,14 +107,6 @@ public class Initalise{
         return mortgage;
     }
 
-    public ArrayList<Integer> shuffle(){
-        ArrayList<Integer> deck = new ArrayList<>();
-        for(int i=1;i<17;i++){
-            deck.add(i);
-        }
-        Collections.shuffle(deck);
-        return deck;
-    }
     //Auction text - 1 else 0
     public static int userType(ArrayList<Integer> possibleChoices,int auction){
         ArrayList<Integer> array =  (ArrayList<Integer>) possibleChoices.clone();
@@ -299,7 +307,6 @@ public class Initalise{
 
         Chance c10= new Chance(0,"Go to Jail. Go directly to Jail. Do not pass GO, do not collect $200.");
         c9.setPosition(10);
-        c10.position=10;
         infoChance.put(10,c10.getInfo());
 
         Chance c11= new Chance(6,"Make general repairs on all your property: For each house pay $25, For each hotel pay $100.");

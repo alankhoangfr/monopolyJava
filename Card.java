@@ -1,20 +1,26 @@
 import java.util.*;
 
 public class Card{
-    int type;
-    String cardName;
+    protected int type;
+    protected String cardName;
     //Constructors
     Card(int type, String cardName){
         this.type=type;
         this.cardName=cardName;
     }
+    public int getType(){
+        return type;
+    }
+    public String getCardName(){
+        return cardName;
+    }
 }
 
 class Chance extends Card{
 
-    int position;
-    int money;
-    String name="Chance";
+    private int position;
+    private int money;
+    private String name="Chance";
 
     Chance(int type,String cardName){
         super(type,cardName);
@@ -45,9 +51,9 @@ class Chance extends Card{
 
 class Community extends Card{
 
-    int position;
-    int money;
-    String name="Community";
+    private int position;
+    private int money;
+    private String name="Community";
 
     Community(int type,String cardName){
         super(type,cardName);

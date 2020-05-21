@@ -2,15 +2,22 @@
 
  public class Dice{
     Random rand = new Random();
-    int a = rand.nextInt(6)+1;
-    int b = rand.nextInt(6)+1;
-    int total = a+b;
-    boolean doub = a == b;
+    private int a = rand.nextInt(6)+1;
+    private int b = rand.nextInt(6)+1;
+    private int total = a+b;
+    private boolean doub = a == b;
 
+    public int getA(){
+        return a;
+    }
+    public int getB(){
+        return b;
+    }
     public int getTotal(){
         return total;
     }
     public boolean getDoub(){
         return doub;
     }
+
     }

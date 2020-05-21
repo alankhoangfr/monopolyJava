@@ -3,24 +3,24 @@ import java.util.function.Consumer;
 
 public class IndividualProperty {
 
-    String name;
-    int family;
-    int owner;
-    int price;
-    int landRent;
-    int monopoly;
-    int oneHouse;
-    int twoHouse;
-    int threeHouse;
-    int fourHouse;
-    int hotel;
-    int status;
+    private String name;
+    private int family;
+    private int owner;
+    private int price;
+    private int landRent;
+    private int monopoly;
+    private int oneHouse;
+    private int twoHouse;
+    private int threeHouse;
+    private int fourHouse;
+    private int hotel;
+    private int status;
     //{0:market,1:owner,2:monoploy,3:mortgage}
-    int mortgage;
-    int buildCost;
-    int rentPrice;
-    int position;
-    String colour;
+    private int mortgage;
+    private int buildCost;
+    private int rentPrice;
+    private int position;
+    private String colour;
 
     public IndividualProperty(PropertyBuilder propertyBuilder) {
         this.name= propertyBuilder.name;

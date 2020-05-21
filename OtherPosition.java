@@ -3,10 +3,10 @@ import java.util.function.Consumer;
 
 public class OtherPosition {
 
-    int position;
-    int money=0;
-    int type;
-    String name;
+    private int position;
+    private int money=0;
+    private int type;
+    private String name;
 
     public OtherPosition(PropertyBuilder propertyBuilder) {
         this.position = propertyBuilder.position;
