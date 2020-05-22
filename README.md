@@ -28,6 +28,8 @@ Liquidation Value is the possible funds you can raise. Since you have then commi
 
 During an auction, in each cycle of bidders, you can only ONCE attempt to raise funds. Note that if you bid a value, you must uphold to it if you win the auction. For example, if your avaliable cash is $150 and you bid $150, then you spent that money before the completition of the auciton, such as trading or unmortgage or building property and you also win the auction, you MUST pay that $150 otherwise you will declare bankruptcy. If you declare bankruptcy, the auction will start again.
 
+The chance and community decks are shuffled once at the beginning of the game. Once a player draw a card and enacts on the commands, it is then placed at the bottom of the deck. If a player draw a Get of out Jail Card, that card is then given to the player. Once the player uses the card, it is then put at the bottom of the respective deck.
+
 ## Coding the game
 
 
