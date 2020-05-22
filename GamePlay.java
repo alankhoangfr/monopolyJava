@@ -131,7 +131,7 @@ public class GamePlay{
         }
         return count;
     }
-
+    //During the roll when the player is in jail
     public static Object rollDecision(ArrayList<Object> playerList,  int playerId, Object initial){
         Initalise init = (Initalise) initial;
         Random rand = new Random();
