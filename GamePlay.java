@@ -33,7 +33,7 @@ public class GamePlay{
                     ArrayList<Boolean> diceList = (ArrayList<Boolean>)player.getDiceHistory();
                     while(repeat==true){
                         System.out.println("");
-                        if(diceList.size()>0){
+                        if(diceList.size()>0&&player.getRepeatRoll()){
                             System.out.println("Roll Again");
                         }else{
                             System.out.println("++++++++++++++++++++++++++++++++");
@@ -50,6 +50,15 @@ public class GamePlay{
                             //Information regarding that position
                             LinkedHashMap information = init.infoPosition(newPossiblePosition);
                             //Move to that position
+                            if(player.getPosition()<40&&newPossiblePosition>=0&&player.getPosition()>newPossiblePosition){
+                                System.out.println("");
+                                player.updateCash(200);
+                                System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+                                System.out.println(player.getName()+" has passed GO. "+player.getName()+" receives $200!"
+                                    +player.getName()+" has $"+player.getCash());
+                                System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+                                System.out.println("");
+                            }
                             player.setPosition(player.newPosition(roll.getTotal(),roll.getDouble()));
                             System.out.println("player: "+player.getName()
                                 +",cash:"+player.getCash()+" ,position: "+player.getPosition()+",jail: "+player.getJail()
@@ -64,7 +73,7 @@ public class GamePlay{
                             //System.out.println(init.communityDeck+": community deck");
                             int type = (Integer) information.get("type");
                             firstResponse(playerList,player.getPlayerId(),information,roll.getTotal(),type,init);
-                            if(player.getJail()){
+                            if(player.getJail()&&player.getDiceHistory().size()==3){
                                 System.out.println("");
                                 System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
                                 System.out.println(player.getName()+" has rolled 3 doubles and now is in Jail!!");
@@ -434,7 +443,8 @@ public class GamePlay{
                         postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
                         init.updatePropertyDetails(player.getPosition(),postInfo);
                         System.out.println(postInfo.get("name")+" was bought for  price $"
-                            +postInfo.get("price")+". The new owners is "+player.getName()+". The rent is variable.");
+                            +postInfo.get("price")+". The new owner is "+player.getName()+". The rent is variable.");
+                        System.out.println(player.getName()+" has $"+player.getCash());
                     }
                 }
                 else{
@@ -446,7 +456,8 @@ public class GamePlay{
                         postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
                         init.updatePropertyDetails(player.getPosition(),postInfo);
                         System.out.println(postInfo.get("name")+" was bought for  price $"
-                            +postInfo.get("price")+". The new owners is "+player.getName()+". The rent is variable.");
+                            +postInfo.get("price")+". The new owner is "+player.getName()+". The rent is variable.");
+                        System.out.println(player.getName()+" has $"+player.getCash());
                     }else{
                         System.out.println(player.getName()+" has chosen to start an auction");
                         auction(playerList, playerId, utilityInfo, initial);
@@ -482,7 +493,8 @@ public class GamePlay{
                         postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,0,1);
                         init.updatePropertyDetails(player.getPosition(),postInfo);
                         System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                            +". The new owners is "+player.getName()+". The rent is $"+postInfo.get("rentPrice"));
+                            +". The new owner is "+player.getName()+". The rent is $"+postInfo.get("rentPrice"));
+                        System.out.println(player.getName()+" has $"+player.getCash());
                     }
                 }else{
                     ArrayList<Integer> possibleChoice = new ArrayList<Integer>(Arrays.asList(1,2));
@@ -493,7 +505,8 @@ public class GamePlay{
                         postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
                         init.updatePropertyDetails(player.getPosition(),postInfo);
                         System.out.println(postInfo.get("name")+" was bought for  price $"
-                            +postInfo.get("price")+". The new owners is "+player.getName()+". The rent is variable.");
+                            +postInfo.get("price")+". The new owner is "+player.getName()+". The rent is variable.");
+                        System.out.println(player.getName()+" has $"+player.getCash());
                     }else{
                         System.out.println(player.getName()+" has chosen to start an auction");
                         auction(playerList, playerId, utilityInfo, initial);
@@ -604,10 +617,12 @@ public class GamePlay{
                             init.updatePropertyDetails(player.getPosition(),postInfo);
                             if(family==10){
                                 System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                                    +". The new owners are "+player.getName()+". The rent is variable");
+                                    +". The new owner is "+player.getName()+". The rent is variable");
+                                System.out.println(player.getName()+" has $"+player.getCash());
                             }else{
                                 System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                                    +". The new owners are "+player.getName()+". The rent is $ "+postInfo.get("rentPrice"));
+                                    +". The new owner is "+player.getName()+". The rent is $ "+postInfo.get("rentPrice"));
+                                System.out.println(player.getName()+" has $"+player.getCash());
                             }
                         }
 
@@ -617,10 +632,12 @@ public class GamePlay{
                     init.updatePropertyDetails(player.getPosition(),postInfo);
                     if(family==10){
                         System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                            +". The new owners are "+player.getName()+". The rent is variable");
+                            +". The new owner is "+player.getName()+". The rent is variable");
+                        System.out.println(player.getName()+" has $"+player.getCash());
                     }else{
                         System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                            +". The new owners are "+player.getName()+". The rent is $ "+postInfo.get("rentPrice"));
+                            +". The new owner is "+player.getName()+". The rent is $ "+postInfo.get("rentPrice"));
+                        System.out.println(player.getName()+" has $"+player.getCash());
                     }
                 }
             }else{
@@ -1040,7 +1057,7 @@ public class GamePlay{
         System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
         System.out.println(player.getName()+ " wants to trade. Below are its trading information");
         player.printTradeInfo();
-        System.out.println("-----------------------------------------------------------------------");
+        System.out.println("******************************************************************************");
         ArrayList<Integer> possibleChoice = new ArrayList<Integer> ();
         for(int newP=0;newP<playerList.size();newP++){
             if(newP!=playerId){
