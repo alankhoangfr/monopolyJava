@@ -690,6 +690,29 @@ public class GamePlay{
         }
     }
 
+    public static void printAllPlayerInfo(ArrayList<Object> playerList,int playerId){
+
+        Player player = (Player) playerList.get(playerId);
+        System.out.println("-----------------------------------------------------------------------");
+        System.out.println("Players Information");
+        System.out.println("-----------------------------------------------------------------------");
+        System.out.println("");
+        System.out.println(player.getName()+"'s Information");
+        player.printTradeInfo();
+        System.out.println("-----------------------------------------------------------------------");
+        for(int newP=0;newP<playerList.size();newP++){
+                    if(newP!=playerId){
+                        Player tempPlayer = (Player) playerList.get(newP);
+                        if(tempPlayer.getStatus()==1){
+                            System.out.println(tempPlayer.getName()+"'s Information");
+                            System.out.println("");
+                            tempPlayer.printTradeInfo();
+                            System.out.println("-----------------------------------------------------------------------");
+                        }
+                    }
+                }
+    }
+
     //winner -- -1: bank or other playerid. If no winner, -1, Collected players: 9.
     public static void playerAction(ArrayList<Object> playerList,  int playerId,int minCash,int winner,
         int prevCash,Object initial){
@@ -698,32 +721,43 @@ public class GamePlay{
         System.out.println("");
         if(player.getStatus()==1){
            if(prevCash>=minCash||minCash==0){
-                System.out.println(player.getName()+". Type 0 to Continue or Type 1 to Build Houses and Hotels, Type 2 to Mortgage Property,"
-                    +" Type 3 to Sell Property,"+" Type 4 to Trade or Type 9 for player information");
-                ArrayList<Integer> possibleChoice = init.makeAList(1,4);
+                System.out.println(player.getName()+". Type 0 to Continue or Type 1 to Build Houses and Hotels, "
+                    +"Type 2 to Mortgage Property,");
+                System.out.println("Type 3 to Sell Property,"+" Type 4 to Trade or Type 5 to other players details"
+                 +" or Type 9 for player information");
+                ArrayList<Integer> possibleChoice = init.makeAList(1,5);
                 possibleChoice.add(9);
                 possibleChoice.add(0);
                 int userChoice  = init.userType(possibleChoice,0);
                 if(userChoice==9){
                     player.printGetInfo();
                     playerAction( playerList, playerId, minCash,winner, prevCash, init);
-                }else{
+                }else if(userChoice==5){
+                    printAllPlayerInfo(playerList, playerId);
+                    playerAction( playerList, playerId, minCash,winner, prevCash, init);
+                }
+                else{
                     playersChoice(playerList,playerId,winner,init,userChoice);
                 }
            }else{
                 System.out.println(player.getName()+" has $"+prevCash+" but needs $"+minCash+". There is a $"+(prevCash-minCash)+
                     " difference.");
                 System.out.println(player.getName()+". Type -1 to Declare Bankruptcy or Type 1 to Build Houses and Hotels, "
-                    +" Type 2 to Mortgage Property, "
-                    +"Type 3 to Sell Property,"+" Type 4 to Trade and Type or Type 9 for player information");
-                ArrayList<Integer> possibleChoice = init.makeAList(1,4);
+                    +" Type 2 to Mortgage Property, ");
+                System.out.println("Type 3 to Sell Property,"+" Type 4 to Trade or Type 5 to other players details or "
+                    +"Type 9 for player information");
+                ArrayList<Integer> possibleChoice = init.makeAList(1,5);
                 possibleChoice.add(9);
                 possibleChoice.add(-1);
                 int userChoice  = init.userType(possibleChoice,0);
                 if(userChoice==9){
                     player.printGetInfo();
                     playerAction( playerList,playerId,minCash,winner,prevCash, init);
-                }else if(userChoice==-1){
+                }else if(userChoice==5){
+                    printAllPlayerInfo(playerList, playerId);
+                    playerAction( playerList, playerId, minCash,winner, prevCash, init);
+                }
+                else if(userChoice==-1){
                     ArrayList<Integer> possibleChoice1 = new ArrayList<Integer>(Arrays.asList(1,2));
                     System.out.println(player.getName()+" has chosen Bankruptcy. Once you start the process, it will be final"
                         +" and you will exit the game");
