@@ -134,13 +134,14 @@ public class Player{
         info.put("Hotels",hotels);
         return info;
     }
-    public void printGetInfo (){
-        Initalise init = new Initalise ();
+    public void printGetInfo (Object initial){
+        Initalise init = (Initalise) initial;
         int playerView= playerId+1;
+        int liquidationValue = liquidateAll(init, 1,0);
         System.out.println("");
         System.out.println("----------------------------------------------------------");
-        System.out.println("id: "+playerView+ ", Name: "+name+ ", Cash: "+cash+ ", Get Out of Jail Free Card: "
-            +jailFreeCard);
+        System.out.println("id: "+playerView+ ", Name: "+name+ ", Cash: $"+cash +", Liquidation Value: $"
+            +liquidationValue+", Get Out of Jail Free Card: "+jailFreeCard);
         System.out.println("Mortgage Property");
         for(int deed:mortgage){
             int family = getFamilyList(deed);
@@ -739,9 +740,12 @@ public class Player{
 
         }
     }
-    public int liquidateAll(Object initial,int simulate){
+    //simulate==1 -> simulation, simulate ==0 -> not simulation
+    public int liquidateAll(Object initial, int simulate,int print){
         Initalise init = (Initalise) initial;
-        System.out.println("starting Cash: "+cash);
+        if(print==1){
+            System.out.println("starting Cash: "+cash);
+        }
         ArrayList<Integer>hotels1;
         LinkedHashMap<Integer,Integer>houses1;
         ArrayList<Integer>mortgagePossible1;
@@ -755,10 +759,12 @@ public class Player{
             mortgagePossible1=(ArrayList<Integer>) mortgagePossible;
         }
         //liqudate hotels
-        if(hotels1.size()==1){
-            System.out.println("Liquadating All Hotels - "+name+" has "+hotels.size()+" hotel");
-        }else{
-            System.out.println("Liquadating All Hotels - "+name+" has "+hotels.size()+" hotels");
+        if(print==1){
+            if(hotels1.size()==1){
+                System.out.println("Liquadating All Hotels - "+name+" has "+hotels.size()+" hotel");
+            }else{
+                System.out.println("Liquadating All Hotels - "+name+" has "+hotels.size()+" hotels");
+            }
         }
         int totalHotelValue= 0;
         for(int propertyPosition: hotels1){
@@ -774,17 +780,19 @@ public class Player{
             }
         }
         hotels1.clear();
-        System.out.println("Able to raise $"+totalHotelValue);
-        if(simulate==0){
-            System.out.println("Current Cash: $"+cash);
+        if(print==1){
+            System.out.println("Able to raise $"+totalHotelValue);
+            if(simulate==0){
+                System.out.println("Current Cash: $"+cash);
+            }
+            //liqudate houses
+            if(numberHouses()==1){
+            System.out.println("Liquadating All hosues - "+name+" has "+numberHouses()+" houses");
+            }else{
+                System.out.println("Liquadating All hosues - "+name+" has "+numberHouses()+" houses");
+            }
         }
 
-        //liqudate houses
-        if(numberHouses()==1){
-            System.out.println("Liquadating All hosues - "+name+" has "+numberHouses()+" houses");
-        }else{
-            System.out.println("Liquadating All hosues - "+name+" has "+numberHouses()+" houses");
-        }
         int totalHouseValue= 0;
         for (Entry<Integer, Integer> comb : houses1.entrySet()){
             int propertyPosition =  comb.getKey();
@@ -802,18 +810,17 @@ public class Player{
             }
         }
         houses1.clear();
-        System.out.println("Able to raise $"+totalHouseValue);
-        if(simulate==0){
-            System.out.println("Current Cash: $"+cash);
-        }
-
-
-        //Mortgage all deeds
-
-        if(mortgagePossible1.size()==1){
-            System.out.println("Mortgaging all properties - "+name+" has "+mortgagePossible1.size()+" properties");
-        }else{
-            System.out.println("Mortgaging all properties - "+name+" has "+mortgagePossible1.size()+" properties");
+        if(print==1){
+            System.out.println("Able to raise $"+totalHouseValue);
+            if(simulate==0){
+                System.out.println("Current Cash: $"+cash);
+            }
+            //Mortgage all deeds
+            if(mortgagePossible1.size()==1){
+                System.out.println("Mortgaging all properties - "+name+" has "+mortgagePossible1.size()+" properties");
+            }else{
+                System.out.println("Mortgaging all properties - "+name+" has "+mortgagePossible1.size()+" properties");
+            }
         }
         int totalMortgageValue= 0;
         for (int propertyPosition: mortgagePossible1){
@@ -826,13 +833,19 @@ public class Player{
             }
         }
         mortgagePossible1.clear();
-        System.out.println("Able to raise $"+totalMortgageValue);
+        if(print==1){
+            System.out.println("Able to raise $"+totalMortgageValue);
+        }
         if(simulate==0){
-            System.out.println("Current Cash: $"+cash);
+            if(print==1){
+                System.out.println("Current Cash: $"+cash);
+            }
             return cash;
         }else{
             int simulateCash = cash+totalMortgageValue+totalHouseValue+totalHotelValue;
-            System.out.println("Possible Cash: $"+simulateCash);
+            if(print==1){
+                System.out.println("Possible Cash: $"+simulateCash);
+            }
             return simulateCash;
         }
     }

@@ -213,7 +213,7 @@ public class Initalise{
                 option = sc.nextInt();
                 if(!(array.contains(option))){
                     if(auction==1){
-                        System.out.println("Please enter a value above the auction value");
+                        System.out.println("Please enter a value above the auction value and below current Cash");
                     }else{
                         System.out.println("Please enter an integer in the options");
                     }
