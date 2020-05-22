@@ -73,7 +73,7 @@ public class GamePlay{
                             }
                         }else if(player.getStatus()==1){
                             //Update position which is still in Jail
-                            player.setPosition(player.newPosition(roll.getTotal(),roll.getDoub()));
+                            player.setPosition(player.newPosition(roll.getTotal(),roll.getDouble()));
                         }
                         if(player.getStatus()==1){
                             playerAction(playerList,player.getPlayerId(),0,-1,player.getCash(),init);
@@ -161,8 +161,8 @@ public class GamePlay{
                     case 1:
                         System.out.println(player.getName()+" has chosen to Roll for Double");
                         System.out.println("dice: total: "+roll.getTotal()+", dice 1 Value: "+roll.getA()
-                            +", dice 2 Value: "+roll.getB()+", double: "+roll.getDoub());
-                        if(roll.getDoub()==true){
+                            +", dice 2 Value: "+roll.getB()+", double: "+roll.getDouble());
+                        if(roll.getDouble()==true){
                             System.out.println("Congrulations you have rolled a double. You is now free!");
                             System.out.println(player.getName()+ " is out of jail!");
                             System.out.println("");
@@ -204,7 +204,7 @@ public class GamePlay{
                             System.out.println(player.getName() + " is out of jail!");
                             System.out.println("");
                             System.out.println("dice: total: "+roll.getTotal()+", dice 1 Value: "+roll.getA()+", dice 2: "+roll.getB()+", double: "
-                                +roll.getDoub());
+                                +roll.getDouble());
                             decision=true;
                        }
                        break;
@@ -221,7 +221,7 @@ public class GamePlay{
                         System.out.println("Your Get out of Jail free card has been put back to the botom of the "+card+" deck.");
                         System.out.println(player.getName()+ " is out of jail!");
                         System.out.println("");
-                        System.out.println("dice: total: "+roll.getTotal()+", dice 1 Value: "+roll.getA()+", dice 2: "+roll.getB()+", double: "+roll.getDoub());
+                        System.out.println("dice: total: "+roll.getTotal()+", dice 1 Value: "+roll.getA()+", dice 2: "+roll.getB()+", double: "+roll.getDouble());
                         decision = true;
                         break;
                     default:
@@ -230,7 +230,7 @@ public class GamePlay{
                 }
             }
         }else{
-            System.out.println("dice: total: "+roll.getTotal()+", dice 1 Value: "+roll.getA()+", dice 2: "+roll.getB()+", double: "+roll.getDoub());
+            System.out.println("dice: total: "+roll.getTotal()+", dice 1 Value: "+roll.getA()+", dice 2: "+roll.getB()+", double: "+roll.getDouble());
         }
         return roll;
     }

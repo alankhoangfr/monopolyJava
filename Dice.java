@@ -16,7 +16,7 @@
     public int getTotal(){
         return total;
     }
-    public boolean getDoub(){
+    public boolean getDouble(){
         return doub;
     }
 
