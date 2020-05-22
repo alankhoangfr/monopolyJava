@@ -682,7 +682,7 @@ public class GamePlay{
                 }
 
             }else{
-                System.out.println(player.getName()+" does not pay rent since he owns the property.");
+                System.out.println(player.getName()+" does not pay rent since they own the property.");
             }
         }else{
             System.out.println("Renting house which is mortgage - name:"+information.get("name")+", owner: "

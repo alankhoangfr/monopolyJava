@@ -188,12 +188,13 @@ public class Player{
         for(int deed:mortgage){
             int family = getFamilyList(deed);
             String familyName = init.familyNames(family);
-            System.out.println("Property: "+deed+", Propery Colour: "+familyName);
+
+            System.out.println("Property: "+deed+", Propery Colour: "+familyName+" ---- Mortgaged");
         }
         for(int deed:mortgagePossible){
             int family = getFamilyList(deed);
             String familyName = init.familyNames(family);
-            System.out.println("Property: "+deed+", Propery Colour: "+familyName);
+            System.out.println("Property: "+deed+", Propery Colour: "+familyName+" ---- Mortgage Free");
         }
         System.out.println("");
     }
