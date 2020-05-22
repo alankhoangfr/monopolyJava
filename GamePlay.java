@@ -46,11 +46,11 @@ public class GamePlay{
                         //System.out.println(init.getChanceDeck()+": chance deck");
                         //System.out.println(init.getCommunityDeck()+": community deck");
                         if(player.getJail()==false&&player.getStatus()==1){
-                            int newPossiblePosition = player.rollPlusPosition(1);
+                            int newPossiblePosition = player.rollPlusPosition(roll.getTotal());
                             //Information regarding that position
                             LinkedHashMap information = init.infoPosition(newPossiblePosition);
                             //Move to that position
-                            player.setPosition(player.newPosition(1,true));
+                            player.setPosition(player.newPosition(roll.getTotal(),roll.getDouble()));
                             System.out.println("player: "+player.getName()
                                 +",cash:"+player.getCash()+" ,position: "+player.getPosition()+",jail: "+player.getJail()
                                 +",repeatRoll:"+player.getRepeatRoll());
