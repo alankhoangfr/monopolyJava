@@ -8,7 +8,7 @@ public class Player{
     private String name;
     private int playerId;
     private int position =0;
-    private int cash = 5000;
+    private int cash = 1500;
     private ArrayList<Integer> mortgage = new ArrayList<>();
     private ArrayList<Integer> mortgagePossible = new ArrayList<>();
     private LinkedHashMap<Integer,Integer> houses = new LinkedHashMap<Integer,Integer>();
