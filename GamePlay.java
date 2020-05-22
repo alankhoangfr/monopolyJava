@@ -63,7 +63,7 @@ public class GamePlay{
                             //System.out.println(init.chanceDeck+": chance deck");
                             //System.out.println(init.communityDeck+": community deck");
                             int type = (Integer) information.get("type");
-                            easyAction(playerList,player.getPlayerId(),information,roll.getTotal(),type,init);
+                            firstResponse(playerList,player.getPlayerId(),information,roll.getTotal(),type,init);
                             if(player.getJail()){
                                 System.out.println("");
                                 System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
@@ -119,6 +119,17 @@ public class GamePlay{
                 i++;
             }
         }
+    }
+    //Checking how many alive players in the game
+    public static int validPlayers(ArrayList<Object> playerList){
+        int count=0;
+        for (int i = 0;i<playerList.size();i++){
+            Player temp = (Player) playerList.get(i);
+            if(temp.getStatus()==1){
+                count+=1;
+            }
+        }
+        return count;
     }
 
     public static Object rollDecision(ArrayList<Object> playerList,  int playerId, Object initial){
@@ -224,7 +235,445 @@ public class GamePlay{
         return roll;
     }
 
-    //winner -- -1: banke or other playerid. If no winner, -1, Collected players: 9.
+    public static void firstResponse (ArrayList<Object> playerList,  int playerId, LinkedHashMap information, int rollTotal,
+        int type, Object initial){
+        Initalise init = (Initalise) initial;
+        Player player = (Player) playerList.get(playerId);
+        int prevPosition = player.getPosition();
+        //Action when on that position
+        //0: Advance to Go or to jail directly
+        //1: Receive and pay one off fixed payments
+        //3: Receive or pay variable amounts from/to other players
+        //4:Advance to utlity and pay variable amount
+        //5: Advance to station and pay double amount
+        //7: Keep get out of jail free card
+        //6:Pay bank based on property
+        //8: Go back 3 steps
+        //9:Buy/Rent/Auction property
+        switch(type){
+            case 0:
+                player.updateInfo(information,playerList.size(),rollTotal);
+                type0(playerList,playerId);
+                break;
+            case 1:
+                int money= (Integer) information.get("money");
+                type1(playerList,playerId,money,init,information,rollTotal);
+                break;
+            case 2:
+                player.updateInfo(information,playerList.size(),rollTotal);
+                type2(playerList, playerId,init,rollTotal,prevPosition);
+                break;
+            case 3:
+                type3( playerList,playerId,information,init,rollTotal);
+                break;
+            case 4:
+            case 5:
+                stationArrival( playerList, player.getPlayerId(),type,init,rollTotal);
+                break;
+            case 6:
+                type6( playerList,playerId,information,init,rollTotal);
+                break;
+            case 7:
+                player.updateInfo(information,playerList.size(),rollTotal);
+                type7( playerList,playerId);
+                break;
+            case 8:
+                player.updateInfo(information,playerList.size(),rollTotal);
+                type8(playerList, playerId,init,rollTotal,information);
+                break;
+            case 9:
+                player.updateInfo(information,playerList.size(),rollTotal);
+                type9(playerList, playerId,init,rollTotal,information);
+                break;
+            default:
+                System.out.println(type);
+                System.out.println("error Easy action");
+        }
+
+    }
+
+    public static void type0(ArrayList<Object> playerList,  int playerId){
+        Player player = (Player) playerList.get(playerId);
+        switch(player.getPosition()){
+            case 0:
+                System.out.println(player.getName()+" has move to GO and collected $200");
+                System.out.println(player.getName()+" has $" + player.getCash());
+                break;
+            case 10:
+                System.out.println(player.getName()+" is in Jail");
+                break;
+            case 20:
+                System.out.println(player.getName()+" is in Free parking");
+                break;
+            default:
+                System.out.println("error type0");
+        }
+    }
+    public static void type1(ArrayList<Object> playerList,  int playerId,int money,Object initial,
+        LinkedHashMap information,int rollTotal){
+        Initalise init = (Initalise) initial;
+        Player player = (Player) playerList.get(playerId);
+        int prevCash = player.getCash();
+        if(money>0){
+            player.updateInfo(information,playerList.size(),rollTotal);
+            System.out.println(player.getName()+" has received $"+ Math.abs(money)+" from the bank");
+        }else{
+            if(Math.abs(money)>prevCash){
+                playerAction(playerList,player.getPlayerId(),Math.abs(money),-1,prevCash,init);
+                if(player.getStatus()==1){
+                    player.updateInfo(information,playerList.size(),rollTotal);
+                    System.out.println(player.getName()+" has paid $"+ Math.abs(money)+" to the bank");
+                }
+            }else{
+                player.updateInfo(information,playerList.size(),rollTotal);
+                System.out.println(player.getName()+" has paid $"+ Math.abs(money)+" to the bank");
+            }
+        }
+        System.out.println(player.getName()+" has $" + player.getCash());
+    }
+    public static void type2(ArrayList<Object> playerList,  int playerId,Object initial,int rollTotal,int prevPosition){
+        Player player = (Player) playerList.get(playerId);
+        Initalise init = (Initalise) initial;
+        if(prevPosition>player.getPosition()){
+            System.out.println(player.getName()+" has pass GO and receives $200");
+            System.out.println(player.getName()+" has $" + player.getCash());
+        }
+        LinkedHashMap newInformation = init.infoPosition(player.getPosition());
+        System.out.println("");
+        System.out.println(player.getName()+" is walking .............");
+        System.out.println(player.getName()+" has arrived at "+newInformation.get("name")+", position: "+player.getPosition());
+        type9(playerList, playerId,init,rollTotal,newInformation);
+    }
+    public static void type3(ArrayList<Object> playerList,  int playerId,LinkedHashMap information,Object initial,int rollTotal){
+        Player player = (Player) playerList.get(playerId);
+        int amount = (Integer) information.get("money");
+        int startNumber = validPlayers(playerList);
+        int payment = amount*(startNumber-1);
+        int prevCash = player.getCash();
+        if(Math.abs(payment)>prevCash){
+            if(payment<0){
+                playerAction(playerList,player.getPlayerId(),Math.abs(payment),9,player.getCash(),initial);
+                player.updateInfo(information,startNumber,rollTotal);
+            }
+        }else{
+            if(payment<0){
+                player.updateInfo(information,startNumber,rollTotal);
+            }
+        }
+        if(player.getStatus()==1&&Math.abs(payment)<=player.getCash()){
+            for(int newP=0;newP<playerList.size();newP++){
+                if(newP!=playerId){
+                    Player tempPlayer = (Player) playerList.get(newP);
+                    if(tempPlayer.getStatus()==1){
+                        if(amount>0){
+                            if(amount>tempPlayer.getCash()){
+                                playerAction(playerList,tempPlayer.getPlayerId(),Math.abs(amount),player.getPlayerId(),
+                                    tempPlayer.getCash(),initial);
+                            }
+                            if(tempPlayer.getStatus()==1&&tempPlayer.getCash()>=amount){
+                                tempPlayer.updateCash(amount*-1);
+                                player.updateCash(amount);
+                                System.out.println(tempPlayer.getName()+" has paid $"+ Math.abs(amount)+" to "+ player.getName());
+                                System.out.println(tempPlayer.getName()+" has $" + tempPlayer.getCash());
+                            }
+
+                        }else{
+                            System.out.println(tempPlayer.getName()+" has received $"+ Math.abs(amount)+" from "+player.getName());
+                        }
+                    }
+                }
+            }
+            if(amount*-1>0){
+                System.out.println(player.getName()+" has paid money to other players ");
+            }else{
+                System.out.println(player.getName()+" has received money from other players ");
+            }
+            System.out.println(player.getName()+" has $" + player.getCash());
+        }
+    }
+    public static void stationArrival(ArrayList<Object> playerList,  int playerId, int type,Object initial, int rollTotal){
+        Initalise init = (Initalise) initial;
+        Player player = (Player) playerList.get(playerId);
+        int newPosition=0;
+        if(type==4){
+            newPosition = player.closestUtility(player.getPosition());
+            if(player.getPosition()>28 && player.getPosition()<40){
+                System.out.println(player.getName()+" has passed GO and receives $200 and "+player.getName()+ "'s cash is $"+player.getCash());
+            }
+        }else if(type==5){
+            newPosition = player.closestStation(player.getPosition());
+            if(player.getPosition()>35 && player.getPosition()<40){
+                System.out.println(player.getName()+" has passed GO and receives $200 and "+player.getName()+ "'s cash is $"+player.getCash());
+            }
+        }
+        player.setPosition(newPosition);
+        LinkedHashMap utilityInfo = init.infoPosition(newPosition);
+        utilityInfo.remove("type");
+        utilityInfo.put("type",type);
+        System.out.println("");
+        System.out.println(player.getName()+" is walking .............");
+        System.out.println(player.getName()+" has arrived at "+utilityInfo.get("name")+", position: "+newPosition);
+        LinkedHashMap postInfo=new LinkedHashMap();
+        int status =  (Integer) utilityInfo.get("status");
+        int owner = (Integer) utilityInfo.get("owner");
+        int payment=0;
+        int propertyPrice = (Integer) utilityInfo.get("price");
+        if(type==4){
+            payment = rollTotal*10;
+            if (status==0){
+                if(propertyPrice>player.getCash()){
+                    ArrayList<Integer> possibleChoice1 = new ArrayList<Integer>(Arrays.asList(1,2));
+                    System.out.println(player.getName()+" does not have the funds. Type 1 to Auction or Type 2 "
+                        +" to raise the funds.  Your decision is FINAL!!!");
+                    int userChoice1=init.userType(possibleChoice1,0);
+                    if(userChoice1==1){
+                        auction(playerList, playerId, utilityInfo, init);
+                    }
+                    if(player.getStatus()==1&&propertyPrice<=player.getCash()){
+                        playerAction(playerList,player.getPlayerId(),propertyPrice,owner,player.getCash(),init);
+                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
+                        init.updatePropertyDetails(player.getPosition(),postInfo);
+                        System.out.println(postInfo.get("name")+" was bought for  price $"
+                            +postInfo.get("price")+". The new owners is "+player.getName()+". The rent is variable.");
+                    }
+                }
+                else{
+                    ArrayList<Integer> possibleChoice = new ArrayList<Integer>(Arrays.asList(1,2));
+                    init.printInfoProperty(utilityInfo,playerList);
+                    System.out.println(player.getName()+". Type 1 to buy or Type 2 to Auction the property");
+                    int userChoice=init.userType(possibleChoice,0);
+                    if(userChoice==1){
+                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
+                        init.updatePropertyDetails(player.getPosition(),postInfo);
+                        System.out.println(postInfo.get("name")+" was bought for  price $"
+                            +postInfo.get("price")+". The new owners is "+player.getName()+". The rent is variable.");
+                    }else{
+                        System.out.println(player.getName()+" has chosen to start an auction");
+                        auction(playerList, playerId, utilityInfo, initial);
+                    }
+                }
+            }else if(status==1){
+                if(owner==player.getPlayerId()){
+                    System.out.println(player.getName()+" does not have to pay rent because "+player.getName()+" own's the property");
+                }else{
+                    if(payment>player.getCash()){
+                        System.out.println("not enough for rent");
+                        playerAction(playerList,player.getPlayerId(),payment,owner,player.getCash(),init);
+                    }
+                    if(player.getStatus()==1&&player.getCash()>=payment){
+                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
+                    }
+                }
+            }else{
+                System.out.println(player.getName()+" doesn't need to pay rent because the property is mortgaged");
+            }
+        }else if(type==5){
+            if (status==0){
+                if(propertyPrice>player.getCash()){
+                    ArrayList<Integer> possibleChoice1 = new ArrayList<Integer>(Arrays.asList(1,2));
+                    System.out.println(player.getName()+" does not have the funds. Type 1 to Auction or Type 2 "
+                        +" to raise the funds.  Your decision is FINAL!!!");
+                    int userChoice1=init.userType(possibleChoice1,0);
+                    if(userChoice1==1){
+                        auction(playerList, playerId, utilityInfo, init);
+                    }
+                    if(player.getStatus()==1&&propertyPrice<=player.getCash()){
+                        playerAction(playerList,player.getPlayerId(),propertyPrice,-1,player.getCash(),init);
+                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,0,1);
+                        init.updatePropertyDetails(player.getPosition(),postInfo);
+                        System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
+                            +". The new owners is "+player.getName()+". The rent is $"+postInfo.get("rentPrice"));
+                    }
+                }else{
+                    ArrayList<Integer> possibleChoice = new ArrayList<Integer>(Arrays.asList(1,2));
+                    init.printInfoProperty(utilityInfo,playerList);
+                    System.out.println(player.getName()+". Type 1 to buy or Type 2 to Auction the property");
+                    int userChoice=init.userType(possibleChoice,0);
+                    if(userChoice==1){
+                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
+                        init.updatePropertyDetails(player.getPosition(),postInfo);
+                        System.out.println(postInfo.get("name")+" was bought for  price $"
+                            +postInfo.get("price")+". The new owners is "+player.getName()+". The rent is variable.");
+                    }else{
+                        System.out.println(player.getName()+" has chosen to start an auction");
+                        auction(playerList, playerId, utilityInfo, initial);
+                    }
+                }
+            }else if(status==1){
+                if(owner==player.getPlayerId()){
+                    System.out.println(player.getName()+" does not have to pay rent because "+player.getName()+" own's the property");
+                }else{
+                    payment = (Integer) utilityInfo.get("rentPrice")*2;
+                    if(payment>player.getCash()){
+                        System.out.println("not enough for rent");
+                        playerAction(playerList,player.getPlayerId(),payment,owner,player.getCash(),init);
+                    }
+                    if(player.getStatus()==1&&player.getCash()>=payment){
+                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
+                    }
+                }
+            }else{
+                System.out.println(player.getName()+" doesn't need to pay rent because the property is mortgaged");
+            }
+        }
+        //Payment for owner of the property
+        if(status==1){
+            if(owner!=player.getPlayerId()){
+                Player temp1 = (Player) playerList.get(owner);
+                temp1.updateCash(payment);
+                //The rent is normal and not doubled. So it has the same conditins as type 4
+                if (type==4||type==0){
+                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp1.getName()
+                        +" at rent $"+payment);
+                }else if(type==5){
+                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp1.getName()
+                        +" at rent double rent of $"+payment/2+ " which is $"+payment);
+                }
+                System.out.println(player.getName()+"'s cash is $"+player.getCash());
+                System.out.println(temp1.getName()+" receives $"+payment +" from "+player.getName()+". "+temp1.getName()
+                    +" now has $"+temp1.getCash());
+            }
+        }else if(status ==2){
+            System.out.println("Renting house which is mortgage - name:"+postInfo.get("name")+", owner: "
+                +postInfo.get("owner")+", payment: "+postInfo.get("payment"));
+        }
+    }
+    public static void type6(ArrayList<Object> playerList,  int playerId,LinkedHashMap information,Object initial,int rollTotal){
+        Player player = (Player) playerList.get(playerId);
+        int expense=0;
+        int numHouses = player.numberHouses();
+        int numHotels = player.numberHotels();
+        if((Integer) information.get("money")==40){
+            expense=40*numHouses+115*numHotels;
+        }else{
+            expense= 25*numHouses + 100*numHotels;
+        }
+        if(expense>player.getCash()){
+            playerAction(playerList,player.getPlayerId(),expense,-1,player.getCash(),initial);
+        }
+        if(player.getStatus()==1&&expense<=player.getCash()){
+            player.updateInfo(information,playerList.size(),rollTotal);
+            System.out.println(player.getName()+" has "+numHouses + " houses and  "+numHotels+" hotels. It cost $"
+                +expense+" to perform the repais" );
+            System.out.println(player.getName()+"'s cash is $"+player.getCash());
+        }
+    }
+    public static void type7(ArrayList<Object> playerList,  int playerId){
+        Player player = (Player) playerList.get(playerId);
+        System.out.println(player.getName()+" has " +player.getJailFreeCard()+" get out of jail free cards");
+    }
+    public static void type8(ArrayList<Object> playerList,  int playerId,Object initial,int rollTotal,LinkedHashMap information){
+        Player player = (Player) playerList.get(playerId);
+        Initalise init = (Initalise) initial;
+        LinkedHashMap updateInformation = init.infoPosition(player.getPosition());
+        if(updateInformation.get("cardName")!=null){
+            System.out.println("position: "+player.getPosition()+", card: "+updateInformation.get("name") + ": "
+                +updateInformation.get("cardName"));
+        }else{
+            System.out.println("position: "+player.getPosition()+ ", name: "+updateInformation.get("name"));
+        }
+        firstResponse(playerList,player.getPlayerId(),updateInformation,rollTotal,(Integer) updateInformation.get("type"),init);
+    }
+    public static void type9(ArrayList<Object> playerList,  int playerId,Object initial,int rollTotal,LinkedHashMap information){
+        Player player = (Player) playerList.get(playerId);
+        Initalise init = (Initalise) initial;
+        int status= (Integer) information.get("status");
+        if(status==0){
+            int propertyPrice = (Integer) information.get("price");
+            int family = (Integer) information.get("family");
+            ArrayList<Integer> possibleChoice = new ArrayList<Integer>(Arrays.asList(1,2));
+            init.printInfoProperty(information,playerList);
+            System.out.println(player.getName()+". Type 1 to buy or Type 2 to Auction the property");
+            int userChoice=init.userType(possibleChoice,0);
+            if(userChoice==1){
+                if(propertyPrice>player.getCash()){
+                    ArrayList<Integer> possibleChoice1 = new ArrayList<Integer>(Arrays.asList(1,2));
+                    System.out.println(player.getName()+" does not have the funds. Type 1 to Auction or Type 2 "
+                        +" to buy and raise the funds to pay. Your decision is FINAL!!!");
+                    int userChoice1=init.userType(possibleChoice1,0);
+                    if(userChoice1==1){
+                        auction(playerList, playerId, information, initial);
+                    }else{
+                        playerAction(playerList,player.getPlayerId(),propertyPrice,-1,player.getCash(),init);
+                        if(player.getStatus()==0){
+                            System.out.println("Since "+player.getName()+" has chosen bankruptcy, it will NOT "
+                                +"buy this property and the bank will auction it.");
+                            auction(playerList, playerId, information, initial);
+                        }else{
+                            LinkedHashMap postInfo = (LinkedHashMap)  player.buyRentAuction(information,0,1);
+                            init.updatePropertyDetails(player.getPosition(),postInfo);
+                            if(family==10){
+                                System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
+                                    +". The new owners are "+player.getName()+". The rent is variable");
+                            }else{
+                                System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
+                                    +". The new owners are "+player.getName()+". The rent is $ "+postInfo.get("rentPrice"));
+                            }
+                        }
+
+                    }
+                }else{
+                    LinkedHashMap postInfo = (LinkedHashMap)  player.buyRentAuction(information,0,1);
+                    init.updatePropertyDetails(player.getPosition(),postInfo);
+                    if(family==10){
+                        System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
+                            +". The new owners are "+player.getName()+". The rent is variable");
+                    }else{
+                        System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
+                            +". The new owners are "+player.getName()+". The rent is $ "+postInfo.get("rentPrice"));
+                    }
+                }
+            }else{
+                System.out.println(player.getName()+" has chosen to start an auction");
+                auction(playerList, playerId, information, initial);
+            }
+
+        }else if(status ==1){
+            if((Integer) information.get("owner")!=player.getPlayerId()){
+                int owner = (Integer) information.get("owner");
+                int family = (Integer) information.get("family");
+                Player temp3 = (Player) playerList.get(owner);
+                int rentPrice;
+                if(family==10){
+                    int numUtlity = Collections.frequency(temp3.getHouseFamily(), 10);
+                    switch(numUtlity){
+                        case 1:
+                            rentPrice = 4*rollTotal;
+                            break;
+                        case 2:
+                            rentPrice = 10*rollTotal;
+                            break;
+                        default:
+                            rentPrice = 0;
+                            break;
+                    }
+                }else{
+                    rentPrice = (Integer) information.get("rentPrice");
+                }
+                if(rentPrice>player.getCash()){
+                    System.out.println("not enough for rent");
+                    playerAction(playerList,player.getPlayerId(),rentPrice,owner,player.getCash(),init);
+                }
+                if(player.getStatus()==1&&player.getCash()>=rentPrice){
+                    LinkedHashMap postInfo = (LinkedHashMap)  player.buyRentAuction(information,rentPrice,1);
+                    temp3.updateCash(rentPrice*1);
+                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp3.getName()
+                        +" at rent $"+rentPrice);
+                    System.out.println(player.getName()+"'s cash is $"+player.getCash());
+                    System.out.println(temp3.getName()+" receives $"+rentPrice +" from "+player.getName()+". "+temp3.getName()
+                        +" now has $"+temp3.getCash());
+                }
+
+            }else{
+                System.out.println(player.getName()+" does not pay rent since he owns the property.");
+            }
+        }else{
+            System.out.println("Renting house which is mortgage - name:"+information.get("name")+", owner: "
+                +information.get("owner")+", rentPrice: "+information.get("rentPrice"));
+        }
+    }
+
+    //winner -- -1: bank or other playerid. If no winner, -1, Collected players: 9.
     public static void playerAction(ArrayList<Object> playerList,  int playerId,int minCash,int winner,
         int prevCash,Object initial){
         Initalise init = (Initalise) initial;
@@ -242,7 +691,7 @@ public class GamePlay{
                     player.printGetInfo();
                     playerAction( playerList, playerId, minCash,winner, prevCash, init);
                 }else{
-                    userAction(playerList,playerId,winner,init,userChoice);
+                    playersChoice(playerList,playerId,winner,init,userChoice);
                 }
            }else{
                 System.out.println(player.getName()+" has $"+prevCash+" but needs $"+minCash+". There is a $"+(prevCash-minCash)+
@@ -286,7 +735,7 @@ public class GamePlay{
                         bankruptcy(playerList,playerId,winner,minCash, initial);
                     }
                 }else{
-                    userAction(playerList,playerId,winner,init,userChoice);
+                    playersChoice(playerList,playerId,winner,init,userChoice);
                 }
                 if(player.getCash()<=minCash&&player.getStatus()==1){
                     playerAction( playerList,playerId,minCash,winner,player.getCash(), init);
@@ -298,8 +747,7 @@ public class GamePlay{
          }
     }
 
-    //continue ==1 -> continue option,  contiune==0-> no continue option
-    public static void userAction(ArrayList<Object> playerList,  int playerId,int winner, Object initial, int userChoice){
+    public static void playersChoice(ArrayList<Object> playerList,  int playerId,int winner, Object initial, int userChoice){
         Player player = (Player) playerList.get(playerId);
         switch (userChoice){
             case 1:
@@ -421,6 +869,91 @@ public class GamePlay{
         playerAction( playerList,   playerId,  0,-1,player.getCash(), init);
     }
 
+    public static void auction(ArrayList<Object> playerList,  int playerId,LinkedHashMap information,Object initial){
+        Initalise init = (Initalise) initial;
+        int numberOfPlayers = playerList.size();
+        ArrayList<Integer> auctionOrder = new ArrayList<Integer>();
+        for(int i=0;i<numberOfPlayers;i++){
+            int order = i+playerId;
+            if(order>=numberOfPlayers){
+                order=i+playerId-numberOfPlayers;
+            }
+            auctionOrder.add(order);
+        }
+        int auctionValue=0;
+        System.out.println("");
+        System.out.println("Auctioning ");
+        init.printInfoProperty(information,playerList);
+        int winnerId;
+        if(validPlayers(playerList)==1){
+            int tempWinner=-1;
+            for(int pe=0;pe<numberOfPlayers;pe++){
+                Player finalWinner = (Player) playerList.get(pe);
+                if(finalWinner.getStatus()==1){
+                    tempWinner=finalWinner.getPlayerId();
+                }
+            }
+            winnerId=tempWinner;
+        }else{
+            while (auctionOrder.size()>1){
+                for(int i=0;i<auctionOrder.size();i++){
+                    int id = auctionOrder.get(i);
+                    Player temp = (Player) playerList.get(id);
+                    if(temp.getStatus()==1){
+                        int maxCash = temp.getCash();
+                        ArrayList<Integer> possibleChoice = init.makeAList(auctionValue+1,maxCash);
+                        possibleChoice.add(-1);
+                        System.out.println("Current Auction Value: "+ auctionValue);
+                        System.out.println(temp.getName()+ ": Register a price!."+" Current cash: $"+temp.getCash());
+                        System.out.println("It must be above the current auction."+" Type -1 to drop out of the auction");
+                        int userChoice = init.userType(possibleChoice,1);
+                        if(userChoice==-1){
+                            System.out.println(temp.getName()+" has dropped out of the auction!!");
+                            auctionOrder.remove(new Integer(id));
+                            i--;
+                            if(auctionOrder.size()==1){
+                                break;
+                            }
+                        }else{
+                            auctionValue=userChoice;
+                        }
+                        System.out.println("");
+                    }else{
+                        auctionOrder.remove(new Integer(id));
+                        i--;
+                    }
+                }
+                System.out.println("..............................");
+            }
+            winnerId = auctionOrder.get(0);
+        }
+        int position = (Integer) information.get("position");
+        int status = (Integer) information.get("status");
+        Player winner = (Player) playerList.get(winnerId);
+        String name = (String) information.get("name");
+        System.out.println("");
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println(name+" was auction for $"+auctionValue+". The winner is "+winner.getName());
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("");
+        if(status==2){
+            ArrayList<Integer> removeMortgageList= new ArrayList<Integer>();
+            ArrayList<Integer> MortgageList= new ArrayList<Integer>(Arrays.asList(position));
+            LinkedHashMap tradeList = new LinkedHashMap();
+            System.out.println("Transfering Money..."+ winner.getName()+" has transfered $"+auctionValue+" to the Bank");
+            winner.updateCash(-auctionValue);
+            tradeList.put("Mortgage",MortgageList);
+            tradeMortgage(playerList, winnerId, init,tradeList, removeMortgageList);
+
+        }else{
+            LinkedHashMap postInfo = (LinkedHashMap)  winner.buyRentAuction(information,auctionValue,0);
+            System.out.println("Transfering Money..."+ winner.getName()+" has transfered $"+auctionValue+" to the Bank");
+            init.updatePropertyDetails(position,postInfo);
+            System.out.println(winner.getName()+" is now owners of "+name);
+            init.printInfoProperty(postInfo,playerList);
+        }
+
+    }
     public static void mortgage(ArrayList<Object> playerList,  int playerId,Object initial){
 
         Player player = (Player) playerList.get(playerId);
@@ -943,16 +1476,6 @@ public class GamePlay{
         System.out.println("");
 
     }
-    public static int validPlayers(ArrayList<Object> playerList){
-        int count=0;
-        for (int i = 0;i<playerList.size();i++){
-            Player temp = (Player) playerList.get(i);
-            if(temp.getStatus()==1){
-                count+=1;
-            }
-        }
-        return count;
-    }
 
     public static void auctionAll (ArrayList<Object> playerList,int victim,Object initial){
         Initalise init = (Initalise) initial;
@@ -967,531 +1490,6 @@ public class GamePlay{
             auction(playerList, victim, information, init);
         }
         vict.clearEverything();
-    }
-
-
-    public static void easyAction (ArrayList<Object> playerList,  int playerId, LinkedHashMap information, int rollTotal,
-        int type, Object initial){
-        Initalise init = (Initalise) initial;
-        Player player = (Player) playerList.get(playerId);
-        int prevPosition = player.getPosition();
-        //Action when on that position
-        //0: Advance to Go or to jail directly
-        //1: Receive and pay one off fixed payments
-        //3: Receive or pay variable amounts from/to other players
-        //4:Advance to utlity and pay variable amount
-        //5: Advance to station and pay double amount
-        //7: Keep get out of jail free card
-        //6:Pay bank based on property
-        //8: Go back 3 steps
-        //9:Buy/Rent/Auction property
-        switch(type){
-            case 0:
-                player.updateInfo(information,playerList.size(),rollTotal);
-                type0(playerList,playerId);
-                break;
-            case 1:
-                int money= (Integer) information.get("money");
-                type1(playerList,playerId,money,init,information,rollTotal);
-                break;
-            case 2:
-                player.updateInfo(information,playerList.size(),rollTotal);
-                type2(playerList, playerId,init,rollTotal,prevPosition);
-                break;
-            case 3:
-                type3( playerList,playerId,information,init,rollTotal);
-                break;
-            case 4:
-            case 5:
-                stationArrival( playerList, player.getPlayerId(),type,init,rollTotal);
-                break;
-            case 6:
-                type6( playerList,playerId,information,init,rollTotal);
-                break;
-            case 7:
-                player.updateInfo(information,playerList.size(),rollTotal);
-                type7( playerList,playerId);
-                break;
-            case 8:
-                player.updateInfo(information,playerList.size(),rollTotal);
-                type8(playerList, playerId,init,rollTotal,information);
-                break;
-            case 9:
-                player.updateInfo(information,playerList.size(),rollTotal);
-                type9(playerList, playerId,init,rollTotal,information);
-                break;
-            default:
-                System.out.println(type);
-                System.out.println("error Easy action");
-        }
-
-    }
-
-    public static void type0(ArrayList<Object> playerList,  int playerId){
-        Player player = (Player) playerList.get(playerId);
-        switch(player.getPosition()){
-            case 0:
-                System.out.println(player.getName()+" has move to GO and collected $200");
-                System.out.println(player.getName()+" has $" + player.getCash());
-                break;
-            case 10:
-                System.out.println(player.getName()+" is in Jail");
-                break;
-            case 20:
-                System.out.println(player.getName()+" is in Free parking");
-                break;
-            default:
-                System.out.println("error type0");
-        }
-    }
-
-    public static void type1(ArrayList<Object> playerList,  int playerId,int money,Object initial,
-        LinkedHashMap information,int rollTotal){
-        Initalise init = (Initalise) initial;
-        Player player = (Player) playerList.get(playerId);
-        int prevCash = player.getCash();
-        if(money>0){
-            player.updateInfo(information,playerList.size(),rollTotal);
-            System.out.println(player.getName()+" has received $"+ Math.abs(money)+" from the bank");
-        }else{
-            if(Math.abs(money)>prevCash){
-                playerAction(playerList,player.getPlayerId(),Math.abs(money),-1,prevCash,init);
-                if(player.getStatus()==1){
-                    player.updateInfo(information,playerList.size(),rollTotal);
-                    System.out.println(player.getName()+" has paid $"+ Math.abs(money)+" to the bank");
-                }
-            }else{
-                player.updateInfo(information,playerList.size(),rollTotal);
-                System.out.println(player.getName()+" has paid $"+ Math.abs(money)+" to the bank");
-            }
-        }
-        System.out.println(player.getName()+" has $" + player.getCash());
-    }
-
-    public static void type2(ArrayList<Object> playerList,  int playerId,Object initial,int rollTotal,int prevPosition){
-        Player player = (Player) playerList.get(playerId);
-        Initalise init = (Initalise) initial;
-        if(prevPosition>player.getPosition()){
-            System.out.println(player.getName()+" has pass GO and receives $200");
-            System.out.println(player.getName()+" has $" + player.getCash());
-        }
-        LinkedHashMap newInformation = init.infoPosition(player.getPosition());
-        System.out.println("");
-        System.out.println(player.getName()+" is walking .............");
-        System.out.println(player.getName()+" has arrived at "+newInformation.get("name")+", position: "+player.getPosition());
-        type9(playerList, playerId,init,rollTotal,newInformation);
-    }
-    public static void type3(ArrayList<Object> playerList,  int playerId,LinkedHashMap information,Object initial,int rollTotal){
-        Player player = (Player) playerList.get(playerId);
-        int amount = (Integer) information.get("money");
-        int startNumber = validPlayers(playerList);
-        int payment = amount*(startNumber-1);
-        int prevCash = player.getCash();
-        if(Math.abs(payment)>prevCash){
-            if(payment<0){
-                playerAction(playerList,player.getPlayerId(),Math.abs(payment),9,player.getCash(),initial);
-                player.updateInfo(information,startNumber,rollTotal);
-            }
-        }else{
-            if(payment<0){
-                player.updateInfo(information,startNumber,rollTotal);
-            }
-        }
-        if(player.getStatus()==1&&Math.abs(payment)<=player.getCash()){
-            for(int newP=0;newP<playerList.size();newP++){
-                if(newP!=playerId){
-                    Player tempPlayer = (Player) playerList.get(newP);
-                    if(tempPlayer.getStatus()==1){
-                        if(amount>0){
-                            if(amount>tempPlayer.getCash()){
-                                playerAction(playerList,tempPlayer.getPlayerId(),Math.abs(amount),player.getPlayerId(),
-                                    tempPlayer.getCash(),initial);
-                            }
-                            if(tempPlayer.getStatus()==1&&tempPlayer.getCash()>=amount){
-                                tempPlayer.updateCash(amount*-1);
-                                player.updateCash(amount);
-                                System.out.println(tempPlayer.getName()+" has paid $"+ Math.abs(amount)+" to "+ player.getName());
-                                System.out.println(tempPlayer.getName()+" has $" + tempPlayer.getCash());
-                            }
-
-                        }else{
-                            System.out.println(tempPlayer.getName()+" has received $"+ Math.abs(amount)+" from "+player.getName());
-                        }
-                    }
-                }
-            }
-            if(amount*-1>0){
-                System.out.println(player.getName()+" has paid money to other players ");
-            }else{
-                System.out.println(player.getName()+" has received money from other players ");
-            }
-            System.out.println(player.getName()+" has $" + player.getCash());
-        }
-    }
-    public static void stationArrival(ArrayList<Object> playerList,  int playerId, int type,Object initial, int rollTotal){
-        Initalise init = (Initalise) initial;
-        Player player = (Player) playerList.get(playerId);
-        int newPosition=0;
-        if(type==4){
-            newPosition = player.closestUtility(player.getPosition());
-            if(player.getPosition()>28 && player.getPosition()<40){
-                System.out.println(player.getName()+" has passed GO and receives $200 and "+player.getName()+ "'s cash is $"+player.getCash());
-            }
-        }else if(type==5){
-            newPosition = player.closestStation(player.getPosition());
-            if(player.getPosition()>35 && player.getPosition()<40){
-                System.out.println(player.getName()+" has passed GO and receives $200 and "+player.getName()+ "'s cash is $"+player.getCash());
-            }
-        }
-        player.setPosition(newPosition);
-        LinkedHashMap utilityInfo = init.infoPosition(newPosition);
-        utilityInfo.remove("type");
-        utilityInfo.put("type",type);
-        System.out.println("");
-        System.out.println(player.getName()+" is walking .............");
-        System.out.println(player.getName()+" has arrived at "+utilityInfo.get("name")+", position: "+newPosition);
-        LinkedHashMap postInfo=new LinkedHashMap();
-        int status =  (Integer) utilityInfo.get("status");
-        int owner = (Integer) utilityInfo.get("owner");
-        int payment=0;
-        int propertyPrice = (Integer) utilityInfo.get("price");
-        if(type==4){
-            payment = rollTotal*10;
-            if (status==0){
-                if(propertyPrice>player.getCash()){
-                    ArrayList<Integer> possibleChoice1 = new ArrayList<Integer>(Arrays.asList(1,2));
-                    System.out.println(player.getName()+" does not have the funds. Type 1 to Auction or Type 2 "
-                        +" to raise the funds.  Your decision is FINAL!!!");
-                    int userChoice1=init.userType(possibleChoice1,0);
-                    if(userChoice1==1){
-                        auction(playerList, playerId, utilityInfo, init);
-                    }
-                    if(player.getStatus()==1&&propertyPrice<=player.getCash()){
-                        playerAction(playerList,player.getPlayerId(),propertyPrice,owner,player.getCash(),init);
-                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
-                        init.updatePropertyDetails(player.getPosition(),postInfo);
-                        System.out.println(postInfo.get("name")+" was bought for  price $"
-                            +postInfo.get("price")+". The new owners is "+player.getName()+". The rent is variable.");
-                    }
-                }
-                else{
-                    ArrayList<Integer> possibleChoice = new ArrayList<Integer>(Arrays.asList(1,2));
-                    init.printInfoProperty(utilityInfo,playerList);
-                    System.out.println(player.getName()+". Type 1 to buy or Type 2 to Auction the property");
-                    int userChoice=init.userType(possibleChoice,0);
-                    if(userChoice==1){
-                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
-                        init.updatePropertyDetails(player.getPosition(),postInfo);
-                        System.out.println(postInfo.get("name")+" was bought for  price $"
-                            +postInfo.get("price")+". The new owners is "+player.getName()+". The rent is variable.");
-                    }else{
-                        System.out.println(player.getName()+" has chosen to start an auction");
-                        auction(playerList, playerId, utilityInfo, initial);
-                    }
-                }
-            }else if(status==1){
-                if(owner==player.getPlayerId()){
-                    System.out.println(player.getName()+" does not have to pay rent because "+player.getName()+" own's the property");
-                }else{
-                    if(payment>player.getCash()){
-                        System.out.println("not enough for rent");
-                        playerAction(playerList,player.getPlayerId(),payment,owner,player.getCash(),init);
-                    }
-                    if(player.getStatus()==1&&player.getCash()>=payment){
-                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
-                    }
-                }
-            }else{
-                System.out.println(player.getName()+" doesn't need to pay rent because the property is mortgaged");
-            }
-        }else if(type==5){
-            if (status==0){
-                if(propertyPrice>player.getCash()){
-                    ArrayList<Integer> possibleChoice1 = new ArrayList<Integer>(Arrays.asList(1,2));
-                    System.out.println(player.getName()+" does not have the funds. Type 1 to Auction or Type 2 "
-                        +" to raise the funds.  Your decision is FINAL!!!");
-                    int userChoice1=init.userType(possibleChoice1,0);
-                    if(userChoice1==1){
-                        auction(playerList, playerId, utilityInfo, init);
-                    }
-                    if(player.getStatus()==1&&propertyPrice<=player.getCash()){
-                        playerAction(playerList,player.getPlayerId(),propertyPrice,-1,player.getCash(),init);
-                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,0,1);
-                        init.updatePropertyDetails(player.getPosition(),postInfo);
-                        System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                            +". The new owners is "+player.getName()+". The rent is $"+postInfo.get("rentPrice"));
-                    }
-                }else{
-                    ArrayList<Integer> possibleChoice = new ArrayList<Integer>(Arrays.asList(1,2));
-                    init.printInfoProperty(utilityInfo,playerList);
-                    System.out.println(player.getName()+". Type 1 to buy or Type 2 to Auction the property");
-                    int userChoice=init.userType(possibleChoice,0);
-                    if(userChoice==1){
-                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
-                        init.updatePropertyDetails(player.getPosition(),postInfo);
-                        System.out.println(postInfo.get("name")+" was bought for  price $"
-                            +postInfo.get("price")+". The new owners is "+player.getName()+". The rent is variable.");
-                    }else{
-                        System.out.println(player.getName()+" has chosen to start an auction");
-                        auction(playerList, playerId, utilityInfo, initial);
-                    }
-                }
-            }else if(status==1){
-                if(owner==player.getPlayerId()){
-                    System.out.println(player.getName()+" does not have to pay rent because "+player.getName()+" own's the property");
-                }else{
-                    payment = (Integer) utilityInfo.get("rentPrice")*2;
-                    if(payment>player.getCash()){
-                        System.out.println("not enough for rent");
-                        playerAction(playerList,player.getPlayerId(),payment,owner,player.getCash(),init);
-                    }
-                    if(player.getStatus()==1&&player.getCash()>=payment){
-                        postInfo = (LinkedHashMap)  player.buyRentAuction(utilityInfo,payment,1);
-                    }
-                }
-            }else{
-                System.out.println(player.getName()+" doesn't need to pay rent because the property is mortgaged");
-            }
-        }
-        //Payment for owner of the property
-        if(status==1){
-            if(owner!=player.getPlayerId()){
-                Player temp1 = (Player) playerList.get(owner);
-                temp1.updateCash(payment);
-                //The rent is normal and not doubled. So it has the same conditins as type 4
-                if (type==4||type==0){
-                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp1.getName()
-                        +" at rent $"+payment);
-                }else if(type==5){
-                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp1.getName()
-                        +" at rent double rent of $"+payment/2+ " which is $"+payment);
-                }
-                System.out.println(player.getName()+"'s cash is $"+player.getCash());
-                System.out.println(temp1.getName()+" receives $"+payment +" from "+player.getName()+". "+temp1.getName()
-                    +" now has $"+temp1.getCash());
-            }
-        }else if(status ==2){
-            System.out.println("Renting house which is mortgage - name:"+postInfo.get("name")+", owner: "
-                +postInfo.get("owner")+", payment: "+postInfo.get("payment"));
-        }
-    }
-    public static void type6(ArrayList<Object> playerList,  int playerId,LinkedHashMap information,Object initial,int rollTotal){
-        Player player = (Player) playerList.get(playerId);
-        int expense=0;
-        int numHouses = player.numberHouses();
-        int numHotels = player.numberHotels();
-        if((Integer) information.get("money")==40){
-            expense=40*numHouses+115*numHotels;
-        }else{
-            expense= 25*numHouses + 100*numHotels;
-        }
-        if(expense>player.getCash()){
-            playerAction(playerList,player.getPlayerId(),expense,-1,player.getCash(),initial);
-        }
-        if(player.getStatus()==1&&expense<=player.getCash()){
-            player.updateInfo(information,playerList.size(),rollTotal);
-            System.out.println(player.getName()+" has "+numHouses + " houses and  "+numHotels+" hotels. It cost $"
-                +expense+" to perform the repais" );
-            System.out.println(player.getName()+"'s cash is $"+player.getCash());
-        }
-    }
-    public static void type7(ArrayList<Object> playerList,  int playerId){
-        Player player = (Player) playerList.get(playerId);
-        System.out.println(player.getName()+" has " +player.getJailFreeCard()+" get out of jail free cards");
-    }
-    public static void type8(ArrayList<Object> playerList,  int playerId,Object initial,int rollTotal,LinkedHashMap information){
-        Player player = (Player) playerList.get(playerId);
-        Initalise init = (Initalise) initial;
-        LinkedHashMap updateInformation = init.infoPosition(player.getPosition());
-        if(updateInformation.get("cardName")!=null){
-            System.out.println("position: "+player.getPosition()+", card: "+updateInformation.get("name") + ": "
-                +updateInformation.get("cardName"));
-        }else{
-            System.out.println("position: "+player.getPosition()+ ", name: "+updateInformation.get("name"));
-        }
-        easyAction(playerList,player.getPlayerId(),updateInformation,rollTotal,(Integer) updateInformation.get("type"),init);
-    }
-    public static void type9(ArrayList<Object> playerList,  int playerId,Object initial,int rollTotal,LinkedHashMap information){
-        Player player = (Player) playerList.get(playerId);
-        Initalise init = (Initalise) initial;
-        int status= (Integer) information.get("status");
-        if(status==0){
-            int propertyPrice = (Integer) information.get("price");
-            int family = (Integer) information.get("family");
-            ArrayList<Integer> possibleChoice = new ArrayList<Integer>(Arrays.asList(1,2));
-            init.printInfoProperty(information,playerList);
-            System.out.println(player.getName()+". Type 1 to buy or Type 2 to Auction the property");
-            int userChoice=init.userType(possibleChoice,0);
-            if(userChoice==1){
-                if(propertyPrice>player.getCash()){
-                    ArrayList<Integer> possibleChoice1 = new ArrayList<Integer>(Arrays.asList(1,2));
-                    System.out.println(player.getName()+" does not have the funds. Type 1 to Auction or Type 2 "
-                        +" to buy and raise the funds to pay. Your decision is FINAL!!!");
-                    int userChoice1=init.userType(possibleChoice1,0);
-                    if(userChoice1==1){
-                        auction(playerList, playerId, information, initial);
-                    }else{
-                        playerAction(playerList,player.getPlayerId(),propertyPrice,-1,player.getCash(),init);
-                        if(player.getStatus()==0){
-                            System.out.println("Since "+player.getName()+" has chosen bankruptcy, it will NOT "
-                                +"buy this property and the bank will auction it.");
-                            auction(playerList, playerId, information, initial);
-                        }else{
-                            LinkedHashMap postInfo = (LinkedHashMap)  player.buyRentAuction(information,0,1);
-                            init.updatePropertyDetails(player.getPosition(),postInfo);
-                            if(family==10){
-                                System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                                    +". The new owners are "+player.getName()+". The rent is variable");
-                            }else{
-                                System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                                    +". The new owners are "+player.getName()+". The rent is $ "+postInfo.get("rentPrice"));
-                            }
-                        }
-
-                    }
-                }else{
-                    LinkedHashMap postInfo = (LinkedHashMap)  player.buyRentAuction(information,0,1);
-                    init.updatePropertyDetails(player.getPosition(),postInfo);
-                    if(family==10){
-                        System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                            +". The new owners are "+player.getName()+". The rent is variable");
-                    }else{
-                        System.out.println(postInfo.get("name")+" was bought for price $"+postInfo.get("price")
-                            +". The new owners are "+player.getName()+". The rent is $ "+postInfo.get("rentPrice"));
-                    }
-                }
-            }else{
-                System.out.println(player.getName()+" has chosen to start an auction");
-                auction(playerList, playerId, information, initial);
-            }
-
-        }else if(status ==1){
-            if((Integer) information.get("owner")!=player.getPlayerId()){
-                int owner = (Integer) information.get("owner");
-                int family = (Integer) information.get("family");
-                Player temp3 = (Player) playerList.get(owner);
-                int rentPrice;
-                if(family==10){
-                    int numUtlity = Collections.frequency(temp3.getHouseFamily(), 10);
-                    switch(numUtlity){
-                        case 1:
-                            rentPrice = 4*rollTotal;
-                            break;
-                        case 2:
-                            rentPrice = 10*rollTotal;
-                            break;
-                        default:
-                            rentPrice = 0;
-                            break;
-                    }
-                }else{
-                    rentPrice = (Integer) information.get("rentPrice");
-                }
-                if(rentPrice>player.getCash()){
-                    System.out.println("not enough for rent");
-                    playerAction(playerList,player.getPlayerId(),rentPrice,owner,player.getCash(),init);
-                }
-                if(player.getStatus()==1&&player.getCash()>=rentPrice){
-                    LinkedHashMap postInfo = (LinkedHashMap)  player.buyRentAuction(information,rentPrice,1);
-                    temp3.updateCash(rentPrice*1);
-                    System.out.println(player.getName()+" will rent "+postInfo.get("name")+" from  "+temp3.getName()
-                        +" at rent $"+rentPrice);
-                    System.out.println(player.getName()+"'s cash is $"+player.getCash());
-                    System.out.println(temp3.getName()+" receives $"+rentPrice +" from "+player.getName()+". "+temp3.getName()
-                        +" now has $"+temp3.getCash());
-                }
-
-            }else{
-                System.out.println(player.getName()+" does not pay rent since he owns the property.");
-            }
-        }else{
-            System.out.println("Renting house which is mortgage - name:"+information.get("name")+", owner: "
-                +information.get("owner")+", rentPrice: "+information.get("rentPrice"));
-        }
-    }
-    public static void auction(ArrayList<Object> playerList,  int playerId,LinkedHashMap information,Object initial){
-        Initalise init = (Initalise) initial;
-        int numberOfPlayers = playerList.size();
-        ArrayList<Integer> auctionOrder = new ArrayList<Integer>();
-        for(int i=0;i<numberOfPlayers;i++){
-            int order = i+playerId;
-            if(order>=numberOfPlayers){
-                order=i+playerId-numberOfPlayers;
-            }
-            auctionOrder.add(order);
-        }
-        int auctionValue=0;
-        System.out.println("");
-        System.out.println("Auctioning ");
-        init.printInfoProperty(information,playerList);
-        int winnerId;
-        if(validPlayers(playerList)==1){
-            int tempWinner=-1;
-            for(int pe=0;pe<numberOfPlayers;pe++){
-                Player finalWinner = (Player) playerList.get(pe);
-                if(finalWinner.getStatus()==1){
-                    tempWinner=finalWinner.getPlayerId();
-                }
-            }
-            winnerId=tempWinner;
-        }else{
-            while (auctionOrder.size()>1){
-                for(int i=0;i<auctionOrder.size();i++){
-                    int id = auctionOrder.get(i);
-                    Player temp = (Player) playerList.get(id);
-                    if(temp.getStatus()==1){
-                        int maxCash = temp.getCash();
-                        ArrayList<Integer> possibleChoice = init.makeAList(auctionValue+1,maxCash);
-                        possibleChoice.add(-1);
-                        System.out.println("Current Auction Value: "+ auctionValue);
-                        System.out.println(temp.getName()+ ": Register a price!."+" Current cash: $"+temp.getCash());
-                        System.out.println("It must be above the current auction."+" Type -1 to drop out of the auction");
-                        int userChoice = init.userType(possibleChoice,1);
-                        if(userChoice==-1){
-                            System.out.println(temp.getName()+" has dropped out of the auction!!");
-                            auctionOrder.remove(new Integer(id));
-                            i--;
-                            if(auctionOrder.size()==1){
-                                break;
-                            }
-                        }else{
-                            auctionValue=userChoice;
-                        }
-                        System.out.println("");
-                    }else{
-                        auctionOrder.remove(new Integer(id));
-                        i--;
-                    }
-                }
-                System.out.println("..............................");
-            }
-            winnerId = auctionOrder.get(0);
-        }
-        int position = (Integer) information.get("position");
-        int status = (Integer) information.get("status");
-        Player winner = (Player) playerList.get(winnerId);
-        String name = (String) information.get("name");
-        System.out.println("");
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-        System.out.println(name+" was auction for $"+auctionValue+". The winner is "+winner.getName());
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-        System.out.println("");
-        if(status==2){
-            ArrayList<Integer> removeMortgageList= new ArrayList<Integer>();
-            ArrayList<Integer> MortgageList= new ArrayList<Integer>(Arrays.asList(position));
-            LinkedHashMap tradeList = new LinkedHashMap();
-            System.out.println("Transfering Money..."+ winner.getName()+" has transfered $"+auctionValue+" to the Bank");
-            winner.updateCash(-auctionValue);
-            tradeList.put("Mortgage",MortgageList);
-            tradeMortgage(playerList, winnerId, init,tradeList, removeMortgageList);
-
-        }else{
-            LinkedHashMap postInfo = (LinkedHashMap)  winner.buyRentAuction(information,auctionValue,0);
-            System.out.println("Transfering Money..."+ winner.getName()+" has transfered $"+auctionValue+" to the Bank");
-            init.updatePropertyDetails(position,postInfo);
-            System.out.println(winner.getName()+" is now owners of "+name);
-            init.printInfoProperty(postInfo,playerList);
-        }
 
     }
 }
