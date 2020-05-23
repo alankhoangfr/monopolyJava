@@ -2,9 +2,10 @@
 # Monopoly game in Java
 
 ## Running the Program
-In the command line of the directory\
-Run javac *.java\
-then java Main
+In the command line of the source directory\
+Run javac *.java -d ../classes\
+then in the classes directory  \
+java Main
 
 
 ## Overview 
