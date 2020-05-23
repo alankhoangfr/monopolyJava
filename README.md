@@ -3,10 +3,8 @@
 
 ## Running the Program
 In the command line of the source directory\
-Run javac *.java -d ../classes\
-then in the classes directory  \
-java Main
-
+Run javac *.java \
+then run java Main  \
 
 ## Overview 
 
