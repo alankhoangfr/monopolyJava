@@ -45,9 +45,10 @@ The game will run 1000 rounds. Each round consist of going through all the playe
 ### Players Action
 
 Before rolling, the player has several options to raise funds or trade. This can be described in the player's action diagram.
+
 ![](Documentation/Photos/PlayerAction.PNG)
 
-The players action is presented before the roll, after arriving at the new position. Before the roll and when the player has a positive cash flow after the roll, it is deemed not necessary. If after the roll, the player does not have a positive cash flow, it is demmed necessary. The difference between necessary and not necessary is that even though both have standard actions, necessary players action has a choice of bankruptcy and cannot continue unless they have a positve cash flow. For example, if the player lands on Income tax and must pay $200 but only has $100 cash, then the player must raise $100 cash to continue or declare bankruptcy.\
+The players action is presented before the roll, after arriving at the new position. Before the roll and when the player has a positive cash flow after the roll, it is deemed not necessary. If after the roll, the player does not have a positive cash flow, it is demmed necessary. The difference between necessary and not necessary is that even though both have standard actions, necessary players action has a choice of bankruptcy and cannot continue unless they have a positve cash flow. For example, if the player lands on Income tax and must pay $200 but only has $100 cash, then the player must raise $100 cash to continue or declare bankruptcy.
 
 The standard actions are buidling a house, mortgaging, un mortgaging, selling houses, trade. Mortgaging, selling houses and trading are ways of raising cash in order to have a positive cash flow. Building houses and un mortgaging property can only be completed if they have the necessary cash flow. 
 
@@ -61,11 +62,49 @@ There are 40 spaces in which if they pass 40th square, they will automatically g
 
 ### First Response
 
-Based on the position or the 
+Based on the position or the reading the community or chance card, there are 9 types of responses that the player can perform.
 
+These responses are described below.
 
-Once arriving at their position, 
+![](Documentation/Photos/FirstResponse.PNG)
+
+#### Type 0
+When the player lands on 0 or 20 where they just simply move positions. 
+
+#### Type 1
+The player lands on a position or a card where they must pay or receive a set payment
+
+#### Type 2
+The player arrives on a chance or community square and then is asked to moved to a position that has a property.
+
+#### Type 3
+The player recieves or pays an amount that is dependent on the number of surviving players. This only occurs from a community/chance card
+
+#### Type 4
+A chance card where it moves the player to the closest utlity and makes the player pay the owner a factor above the rent. If there are no owners, then the player can buy or auction the card
+
+#### Type 5
+A chance card where it moves the player to the closest station and makes the player pay the owner a factor above the rent. If there are no owners, then the player can buy or auction the card
  
+#### Type 6
+A card that makes the player pay an amount based on their ownership of the numbers of houses and hotels.
+
+#### Type 7
+The player recieves a get of out jail card
+
+#### Type 8
+After landing on a chance square, the player takes 3 steps back. There are 3 possibiltes, after taking a step back. \
+1. Paying an income tax\
+2. Arriving on a property\
+3. Arriving on a community square
+
+#### Type 9
+The player arrives on a property. If the property is unowned, then the player can either auction or buy the property. Note that their decision is final as explained above. If the property is already owned, the player must pay rent unless that property is mortgaged. If the player has enough money, then the game contines, otherwise, the player action is presented (necessary) and the player must rasie the funds otherwise decalre bankruptcy.
+
+### Player Action
+Once the first response is completed, the player will be presented with another player action (un necessary).
+
+
  
 
 
