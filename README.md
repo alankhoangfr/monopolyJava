@@ -95,8 +95,8 @@ The player recieves a get of out jail card
 
 #### Type 8
 After landing on a chance square, the player takes 3 steps back. There are 3 possibiltes, after taking a step back. \
-1. Paying an income tax\
-2. Arriving on a property\
+1. Paying an income tax
+2. Arriving on a property
 3. Arriving on a community square
 
 #### Type 9
