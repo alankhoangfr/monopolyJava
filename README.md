@@ -30,6 +30,7 @@ During an auction, in each cycle of bidders, you can only ONCE attempt to raise 
 
 The chance and community decks are shuffled once at the beginning of the game. Once a player draw a card and enacts on the commands, it is then placed at the bottom of the deck. If a player draw a Get of out Jail Card, that card is then given to the player. Once the player uses the card, it is then put at the bottom of the respective deck.
 
+If the player chooses to declare bankruptcy, they will liquidise all their assets by selling all their houses/hotels, mortgaging all their properties. If the liquidisation produces enough money to pay the creditor, then the creditor receives the cash and then the mortgage property is auctioned to the highest bidder. This is a similar motion if the player quits. However, if the player can not produce enough cash to the creditor, the creditor will recieve all the player's property deeds. If the bank is the creditor, the bank will auction these mortgage properties to the highest bidder. 
 ## Coding the game
 
 The flow of the game can be described by the following diagram.
@@ -40,7 +41,7 @@ The flow of the game can be described by the following diagram.
 The overall game needs to initalise how many players and their names. 
 
 ### Running Rounds
-The game will run 1000 rounds. Each round consist of going through all the players
+The game will run 1000 rounds. Each round consist of going through all the players until either 1000 rounds are completed or there is one player left in the game. 
 
 ### Players Action
 
@@ -103,6 +104,8 @@ The player arrives on a property. If the property is unowned, then the player ca
 
 ### Player Action
 Once the first response is completed, the player will be presented with another player action (un necessary).
+
+
 
 
  
