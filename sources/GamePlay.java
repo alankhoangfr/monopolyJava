@@ -153,16 +153,20 @@ public class GamePlay{
             while (decision==false&&player.getStatus()==1){
                 int choice;
                 if(player.getJailFreeCard()>0){
-                    System.out.println(player.getName()+" is in Jail!! Type 1 to Roll for Double. Type 2 to pay $50 bond. "
-                        +"Type 3 to use the Get out of jail free card. Decision is FINAL!!!!");
+                    System.out.println(player.getName()+" is in Jail!!");
+                    System.out.println("Type 1 to Roll for Double.");
+                    System.out.println(" Type 2 to pay $50 bond. ");
+                    System.out.println("Type 3 to use the Get out of jail free card. ");
+                    System.out.println("Decision is FINAL!!!!");
                     int LiquidationValue = player.liquidateAll(init,1,0);
                     System.out.println("");
                     System.out.println(player.getName()+" can raise through liquidation: $"+LiquidationValue);
                     ArrayList<Integer> possibleChoice = init.makeAList(1,3);
                     choice = init.userType(possibleChoice,0);
                 }else{
-                    System.out.println(player.getName()+" is in Jail!! Type 1 to Roll for Double. Type 2 to pay $50 bond. "
-                        +"Decision is FINAL!!!!");
+                    System.out.println(player.getName()+" is in Jail!!");
+                    System.out.println("Type 1 to Roll for Double. Type 2 to pay $50 bond. ");
+                    System.out.println("Decision is FINAL!!!!");
                     int LiquidationValue = player.liquidateAll(init,1,0);
                     System.out.println("");
                     System.out.println(player.getName()+" can raise through liquidation: $"+LiquidationValue);
@@ -735,10 +739,15 @@ public class GamePlay{
         System.out.println("");
         if(player.getStatus()==1){
            if(prevCash>=minCash||minCash==0){
-                System.out.println(player.getName()+". Type 0 to Continue or Type 1 to Build Houses and Hotels, "
-                    +"Type 2 to Mortgage Property,");
-                System.out.println("Type 3 to Sell Property,"+" Type 4 to Trade or Type 5 to other players details"
-                 +" or Type 9 for player information");
+                System.out.println(player.getName()+");
+                System.out.println("Type 0 to Continue");
+                System.out.println("Type 1 to Build Houses and Hotels ");
+                System.out.println("Type 2 to Mortgage Property")
+                System.out.println("Type 3 to Sell Property");
+                System.out.println("Type 4 to Trade);
+                System.out.println("Type 5 to other players details");
+                System.out.println("Type 9 for player information");
+                System.out.println("");
                 ArrayList<Integer> possibleChoice = init.makeAList(1,5);
                 possibleChoice.add(9);
                 possibleChoice.add(0);
@@ -756,10 +765,15 @@ public class GamePlay{
            }else{
                 System.out.println(player.getName()+" has $"+prevCash+" but needs $"+minCash+". There is a $"+(prevCash-minCash)+
                     " difference.");
-                System.out.println(player.getName()+". Type -1 to Declare Bankruptcy or Type 1 to Build Houses and Hotels, "
-                    +" Type 2 to Mortgage Property, ");
-                System.out.println("Type 3 to Sell Property,"+" Type 4 to Trade or Type 5 to other players details or "
-                    +"Type 9 for player information");
+                System.out.println(player.getName()+");
+                System.out.println("Type -1 to Declare Bankruptcy");
+                System.out.println("Type 1 to Build Houses and Hotels ");
+                System.out.println("Type 2 to Mortgage Property")
+                System.out.println("Type 3 to Sell Property");
+                System.out.println("Type 4 to Trade);
+                System.out.println("Type 5 to other players details");
+                System.out.println("Type 9 for player information");
+                System.out.println("");
                 ArrayList<Integer> possibleChoice = init.makeAList(1,5);
                 possibleChoice.add(9);
                 possibleChoice.add(-1);
