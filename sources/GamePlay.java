@@ -739,12 +739,12 @@ public class GamePlay{
         System.out.println("");
         if(player.getStatus()==1){
            if(prevCash>=minCash||minCash==0){
-                System.out.println(player.getName()+");
+                System.out.println(player.getName());
                 System.out.println("Type 0 to Continue");
                 System.out.println("Type 1 to Build Houses and Hotels ");
-                System.out.println("Type 2 to Mortgage Property")
+                System.out.println("Type 2 to Mortgage Property");
                 System.out.println("Type 3 to Sell Property");
-                System.out.println("Type 4 to Trade);
+                System.out.println("Type 4 to Trade");
                 System.out.println("Type 5 to other players details");
                 System.out.println("Type 9 for player information");
                 System.out.println("");
@@ -765,12 +765,12 @@ public class GamePlay{
            }else{
                 System.out.println(player.getName()+" has $"+prevCash+" but needs $"+minCash+". There is a $"+(prevCash-minCash)+
                     " difference.");
-                System.out.println(player.getName()+");
+                System.out.println(player.getName());
                 System.out.println("Type -1 to Declare Bankruptcy");
                 System.out.println("Type 1 to Build Houses and Hotels ");
-                System.out.println("Type 2 to Mortgage Property")
+                System.out.println("Type 2 to Mortgage Property");
                 System.out.println("Type 3 to Sell Property");
-                System.out.println("Type 4 to Trade);
+                System.out.println("Type 4 to Trade");
                 System.out.println("Type 5 to other players details");
                 System.out.println("Type 9 for player information");
                 System.out.println("");
